@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Log In / Register — AssertPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14231A; --blue:#1F7A4D; --blue-dark:#145C38; --teal:#2FA36B; --orange:#E07A2F;
+    --ink:#182019; --steel:#5D6B62; --paper:#FFFFFF; --paper-2:#F4F7F4; --line:#E2E8E2;
+    --ok:#0F7A56; --ok-bg:#E4F7F0; --danger:#C0392B; --danger-bg:#FBE7E5; --info:#1A5C99; --info-bg:#E4EEF9;
+  }
+  html[data-theme="dark"]{
+    --navy:#DCEBDD; --blue:#5CC98C; --blue-dark:#7FD8A6; --teal:#4FD69B; --orange:#FFA05C;
+    --ink:#E6EFE7; --steel:#A3B2A6; --paper:#12181A; --paper-2:#1A221E; --line:#27332B;
+    --ok:#51D39A; --ok-bg:#0F2F23; --danger:#FF6F5E; --danger-bg:#3B1D1B; --info:#7EB8EE; --info-bg:#102944;
+    color-scheme:dark;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; font-family:'Inter', sans-serif; color:var(--ink);
+    background:radial-gradient(900px 480px at 15% -10%, rgba(47,163,107,0.16), transparent 60%),
+               linear-gradient(135deg, var(--paper-2) 0%, #e6efe8 100%);
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:22px;
+  }
+  html[data-theme="dark"] body{ background:radial-gradient(900px 480px at 15% -10%, rgba(47,163,107,0.12), transparent 60%), linear-gradient(135deg,#0B1110 0%,#16201B 60%,#101815 100%); }
+  h1,h3,h4,.brand{ font-family:'Manrope', sans-serif; }
+  :focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+
+  .wrap{ width:100%; max-width:470px; position:relative; }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; color:var(--steel); text-decoration:none; font-size:0.84rem; font-weight:600; margin-bottom:16px; }
+  .back-link:hover{ color:var(--blue); }
+  .theme-toggle{
+    position:absolute; top:0; right:0; display:inline-flex; align-items:center; justify-content:center;
+    width:36px; height:36px; border-radius:8px; background:var(--paper); border:1px solid var(--line);
+    color:var(--navy); cursor:pointer; padding:0; transition:transform .15s, border-color .15s, color .15s;
+  }
+  .theme-toggle:hover{ border-color:var(--blue); color:var(--blue); transform:translateY(-1px); }
+  .theme-toggle svg{ width:18px; height:18px; stroke-width:2; }
+  html[data-theme="dark"] .theme-toggle{ background:#1C2521; border-color:#2C372F; color:#FFD580; }
+
+  .brand{ display:flex; align-items:center; gap:11px; font-weight:800; font-size:1.14rem; color:var(--navy); margin-bottom:20px; justify-content:center; }
+  .brand .mark{ width:44px; height:44px; border-radius:11px; flex:none; background:linear-gradient(135deg,var(--blue),var(--teal)); display:grid; place-items:center; color:#fff; font-size:1.3rem; }
+
+  .login-card{ background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:30px 26px 26px; box-shadow:0 20px 50px rgba(20,35,26,0.12); }
+  html[data-theme="dark"] .login-card{ box-shadow:0 20px 50px rgba(0,0,0,0.55); }
+
+  .tab-bar{ display:grid; grid-template-columns:1fr 1fr; gap:4px; background:var(--paper-2); border:1px solid var(--line); padding:4px; border-radius:10px; margin-bottom:20px; }
+  .tab-btn{ padding:10px 12px; border:none; background:transparent; font-family:'Inter',sans-serif; font-weight:700; font-size:0.86rem; color:var(--steel); border-radius:7px; cursor:pointer; transition:color .15s, background .15s, box-shadow .15s; }
+  .tab-btn:hover{ color:var(--navy); }
+  .tab-btn.active{ color:#fff; background:linear-gradient(135deg, var(--blue), var(--teal)); box-shadow:0 6px 18px rgba(31,122,77,0.28); }
+
+  .login-card h3{ margin:0 0 6px; font-size:1.3rem; color:var(--navy); text-align:center; }
+  .login-card .sub{ text-align:center; color:var(--steel); font-size:0.85rem; margin:0 0 20px; }
+
+  /* role selector */
+  .role-label{ font-size:0.78rem; font-weight:700; color:var(--steel); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
+  .role-picker{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+  .role-card{
+    position:relative; border:1.5px solid var(--line); border-radius:11px; background:var(--paper-2);
+    padding:14px 12px; cursor:pointer; text-align:center; transition:border-color .15s, background .15s, transform .05s;
+    font-family:'Inter',sans-serif;
+  }
+  .role-card:hover{ border-color:var(--teal); }
+  .role-card:active{ transform:translateY(1px); }
+  .role-card .rc-icon{ font-size:1.25rem; margin-bottom:4px; }
+  .role-card .rc-name{ font-weight:800; font-size:0.9rem; color:var(--navy); }
+  .role-card .rc-desc{ font-size:0.72rem; color:var(--steel); margin-top:2px; line-height:1.35; }
+  .role-card.sel{ border-color:var(--blue); background:var(--paper); box-shadow:0 0 0 3px rgba(31,122,77,0.14); }
+  .role-card.sel::after{
+    content:"✓"; position:absolute; top:8px; right:10px; width:18px; height:18px; border-radius:50%;
+    background:var(--blue); color:#fff; font-size:0.7rem; display:grid; place-items:center; font-weight:800;
+  }
+
+  .form-field{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .form-field label{ font-size:0.8rem; font-weight:600; color:var(--steel); }
+  .form-field input, .form-field select{
+    padding:12px 14px; border:1px solid var(--line); border-radius:8px; background:var(--paper);
+    color:var(--ink); font-size:0.9rem; font-family:'Inter',sans-serif; width:100%;
+  }
+  html[data-theme="dark"] .form-field input, html[data-theme="dark"] .form-field select{ background:var(--paper-2); }
+  .form-field input:focus, .form-field select:focus{ outline:2px solid var(--blue); outline-offset:0; border-color:transparent; }
+  .form-note{ font-size:0.74rem; color:var(--steel); margin:-6px 0 12px; line-height:1.4; }
+
+  .btn-row{ display:flex; gap:10px; margin-top:16px; }
+  .btn-primary{ background:var(--teal); color:#fff; padding:12px 20px; border-radius:8px; border:none; font-weight:700; font-size:0.88rem; cursor:pointer; flex:1; text-decoration:none; text-align:center; display:inline-block; transition:filter .15s, transform .05s; }
+  .btn-primary:hover{ filter:brightness(1.05); }
+  .btn-primary:active{ transform:translateY(1px); }
+  .btn-primary[disabled]{ opacity:.65; cursor:not-allowed; filter:none; }
+  .btn-secondary{ border:1.5px solid var(--line); color:var(--steel); padding:12px 16px; border-radius:8px; background:var(--paper); font-weight:700; font-size:0.88rem; cursor:pointer; text-decoration:none; text-align:center; display:inline-block; }
+  .btn-secondary:hover{ border-color:var(--navy); color:var(--navy); }
+  html[data-theme="dark"] .btn-secondary{ background:transparent; }
+
+  .auth-switch{ font-size:0.84rem; color:var(--steel); margin-top:18px; text-align:center; }
+  .auth-switch a{ color:var(--blue); font-weight:700; text-decoration:none; }
+  .auth-switch a:hover{ text-decoration:underline; }
+
+  .banner-msg{ padding:10px 14px; border-radius:8px; font-size:0.82rem; font-weight:600; margin-bottom:14px; display:none; }
+  .banner-msg.show{ display:block; }
+  .banner-error{ background:var(--danger-bg); color:var(--danger); }
+  .banner-success{ background:var(--ok-bg); color:var(--ok); }
+  .banner-info{ background:var(--info-bg); color:var(--info); }
+
+  .first-run{ margin-top:22px; padding:14px 16px; border:1px dashed var(--line); border-radius:10px; background:var(--paper-2); }
+  .first-run h4{ margin:0 0 5px; font-size:0.82rem; font-weight:700; color:var(--steel); letter-spacing:0.02em; text-transform:uppercase; }
+  .first-run .ql-hint{ font-size:0.76rem; color:var(--steel); margin:0; line-height:1.5; }
+  .first-run code{ font-family:'JetBrains Mono',monospace; font-size:0.74rem; background:var(--paper); padding:1px 5px; border-radius:4px; border:1px solid var(--line); }
+
+  .spinner{ display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.35); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="panda-warehouse.html" class="back-link">&larr; Back to AssertPro</a>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    </button>
+
+    <div class="brand">
+      <span class="mark">A</span>
+      AssertPro
+    </div>
+
+    <div class="login-card">
+      <div class="tab-bar" role="tablist" aria-label="Authentication tab">
+        <button class="tab-btn active" id="tabLogin" type="button" role="tab" aria-selected="true">Log In</button>
+        <button class="tab-btn" id="tabRegister" type="button" role="tab" aria-selected="false">Register</button>
+      </div>
+
+      <h3 id="panelTitle">Log In to Your Account</h3>
+      <p class="sub" id="panelSub">Choose your role, then sign in to open your warehouse dashboard.</p>
+
+      <div class="banner-msg banner-success" id="successBanner"></div>
+      <div class="banner-msg banner-error" id="errorBanner"></div>
+      <div class="banner-msg banner-info" id="infoBanner"></div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" autocomplete="on" novalidate>
+        <div class="role-label">Log in as</div>
+        <div class="role-picker" id="loginRolePicker">
+          <button class="role-card sel" type="button" data-role="admin">
+            <div class="rc-icon">🛡️</div>
+            <div class="rc-name">Admin</div>
+            <div class="rc-desc">Full access, manage all users</div>
+          </button>
+          <button class="role-card" type="button" data-role="user">
+            <div class="rc-icon">👤</div>
+            <div class="rc-name">User</div>
+            <div class="rc-desc">Warehouse staff access</div>
+          </button>
+        </div>
+
+        <div class="form-field">
+          <label for="login_username">Username</label>
+          <input type="text" id="login_username" name="username" placeholder="e.g. you@company" autocomplete="username" autofocus required />
+        </div>
+        <div class="form-field">
+          <label for="login_password">Password</label>
+          <input type="password" id="login_password" name="password" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+
+        <div class="btn-row">
+          <a class="btn-secondary" href="panda-warehouse.html">Cancel</a>
+          <button class="btn-primary" id="btnLoginSubmit" type="submit">Log In</button>
+        </div>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="registerForm" autocomplete="on" novalidate style="display:none;">
+        <div class="role-label">Register as</div>
+        <div class="role-picker" id="registerRolePicker">
+          <button class="role-card" type="button" data-role="admin">
+            <div class="rc-icon">🛡️</div>
+            <div class="rc-name">Admin</div>
+            <div class="rc-desc">Can manage all users</div>
+          </button>
+          <button class="role-card sel" type="button" data-role="user">
+            <div class="rc-icon">👤</div>
+            <div class="rc-name">User</div>
+            <div class="rc-desc">Warehouse staff</div>
+          </button>
+        </div>
+
+        <div class="form-field">
+          <label for="reg_display">Full Name</label>
+          <input type="text" id="reg_display" name="displayName" placeholder="e.g. Ravi Kumar" autocomplete="name" required />
+        </div>
+        <div class="form-field">
+          <label for="reg_username">Username</label>
+          <input type="text" id="reg_username" name="username" placeholder="Pick a unique username" autocomplete="username" required />
+        </div>
+        <div class="form-field">
+          <label for="reg_password">Password</label>
+          <input type="password" id="reg_password" name="password" placeholder="At least 6 characters" autocomplete="new-password" required minlength="6" />
+        </div>
+        <div class="form-field">
+          <label for="reg_confirm">Confirm Password</label>
+          <input type="password" id="reg_confirm" name="confirm" placeholder="Re-type password" autocomplete="new-password" required />
+        </div>
+        <p class="form-note">You can register as either <b>Admin</b> or <b>User</b>. Admins are redirected to the Admin Console; users go to the warehouse portal.</p>
+
+        <div class="btn-row">
+          <a class="btn-secondary" href="panda-warehouse.html">Cancel</a>
+          <button class="btn-primary" id="btnRegisterSubmit" type="submit">Create Account</button>
+        </div>
+      </form>
+
+      <div class="auth-switch" id="authSwitch">
+        Don't have an account? <a href="#" id="switchToRegister">Create one now</a>
+      </div>
+
+      <div class="first-run" id="firstRunHint">
+        <h4>First time here?</h4>
+        <p class="ql-hint">No accounts exist yet. Open <b>Register</b>, pick <b>Admin</b>, and
+        your details are written straight into the MongoDB <code>admins</code> collection.</p>
+      </div>
+    </div>
+  </div>
+
+<script src="assertpro-db.js"></script>
+<script>
+  /* ============================================================
+     AssertPro — shared auth store (MongoDB via AP, localStorage fallback)
+     Keys shared with every AssertPro page (assertpro-db.js):
+       assertpro_users_v1    : cached account records pulled from MongoDB
+       assertpro_session     : currently logged-in user (no password)
+     ============================================================ */
+  const USERS_KEY   = 'assertpro_users_v1';
+  const SESSION_KEY = 'assertpro_session';
+
+  /* no built-in accounts: everything comes from MongoDB via assertpro-db.js */
+  function loadUsers(){
+    try{
+      const raw = localStorage.getItem(USERS_KEY);
+      const arr = raw ? JSON.parse(raw) : null;
+      if(Array.isArray(arr)) return arr;
+    }catch(_){}
+    return [];
+  }
+  function saveUsers(list){
+    try{ localStorage.setItem(USERS_KEY, JSON.stringify(list)); }catch(_){}
+  }
+
+  function usernameExists(username){
+    const u = (username || '').toLowerCase().trim();
+    return loadUsers().some(x => (x.username || '').toLowerCase() === u);
+  }
+  function findUser(username, password){
+    const u = (username || '').toLowerCase().trim();
+    return loadUsers().find(x => (x.username || '').toLowerCase() === u && x.password === password) || null;
+  }
+  function setSession(rec){
+    const safe = {
+      username: rec.username,
+      displayName: rec.displayName || rec.username,
+      role: rec.role || 'user',
+      /* kept so new stock records can be filed under the right company + admin */
+      company: rec.company || null,
+      adminUsername: rec.adminUsername || null,
+      loginAt: new Date().toISOString()
+    };
+    try{ localStorage.setItem(SESSION_KEY, JSON.stringify(safe)); }catch(_){}
+    return safe;
+  }
+  function isoNow(){ return new Date().toISOString(); }
+
+  /* -------- THEME -------- */
+  const THEME_KEY = 'assertpro_theme';
+  function getSavedTheme(){
+    try{ const t = localStorage.getItem(THEME_KEY); if(t === 'dark' || t === 'light') return t; }catch(_){}
+    if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+    return 'light';
+  }
+  function syncThemeIcon(theme){
+    const btn = document.getElementById('themeToggle'); if(!btn) return;
+    const sun = btn.querySelector('.icon-sun'), moon = btn.querySelector('.icon-moon');
+    if(!sun || !moon) return;
+    if(theme === 'dark'){ sun.style.display='none'; moon.style.display='inline-block'; }
+    else { sun.style.display='inline-block'; moon.style.display='none'; }
+  }
+  function applyTheme(theme, persist){
+    const root = document.documentElement;
+    if((root.getAttribute('data-theme') || 'light') !== theme){
+      if(theme === 'dark') root.setAttribute('data-theme','dark'); else root.removeAttribute('data-theme');
+    }
+    if(persist !== false){ try{ localStorage.setItem(THEME_KEY, theme); }catch(_){} }
+    syncThemeIcon(theme);
+  }
+  applyTheme(getSavedTheme(), false);
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
+  });
+
+  /* -------- BANNERS -------- */
+  const successBanner = document.getElementById('successBanner');
+  const errorBanner   = document.getElementById('errorBanner');
+  const infoBanner    = document.getElementById('infoBanner');
+  function clearBanners(){
+    [successBanner, errorBanner, infoBanner].forEach(b => { b.classList.remove('show'); b.textContent = ''; });
+  }
+  function showSuccess(m){ clearBanners(); successBanner.textContent = m; successBanner.classList.add('show'); }
+  function showError(m){ clearBanners(); errorBanner.textContent = m; errorBanner.classList.add('show'); }
+  function showInfo(m){ clearBanners(); infoBanner.textContent = m; infoBanner.classList.add('show'); }
+
+  /* -------- ROLE PICKERS -------- */
+  let loginRole = 'admin';
+  let registerRole = 'user';
+  function wireRolePicker(pickerId, initial, onChange){
+    const picker = document.getElementById(pickerId);
+    let value = initial;
+    function paint(){
+      picker.querySelectorAll('.role-card').forEach(c => {
+        c.classList.toggle('sel', c.dataset.role === value);
+      });
+    }
+    picker.addEventListener('click', (e) => {
+      const card = e.target.closest('.role-card');
+      if(!card) return;
+      value = card.dataset.role;
+      paint();
+      onChange(value);
+    });
+    paint();
+    return () => value;
+  }
+  const getLoginRole = wireRolePicker('loginRolePicker', 'admin',
+    (v) => { if(errorBanner.classList.contains('show')) errorBanner.classList.remove('show'); });
+  const getRegisterRole = wireRolePicker('registerRolePicker', 'user', () => {});
+
+  /* -------- TABS -------- */
+  const tabLogin = document.getElementById('tabLogin');
+  const tabRegister = document.getElementById('tabRegister');
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const panelTitle = document.getElementById('panelTitle');
+  const panelSub = document.getElementById('panelSub');
+  const authSwitch = document.getElementById('authSwitch');
+
+  function setTab(which){
+    clearBanners();
+    if(which === 'register'){
+      tabRegister.classList.add('active'); tabRegister.setAttribute('aria-selected','true');
+      tabLogin.classList.remove('active'); tabLogin.setAttribute('aria-selected','false');
+      loginForm.style.display = 'none';
+      registerForm.style.display = '';
+      panelTitle.textContent = 'Create Your Account';
+      panelSub.textContent = 'Register as an Admin or a warehouse User.';
+      authSwitch.innerHTML = 'Already have an account? <a href="#" id="switchToLogin">Log in here</a>';
+      document.getElementById('reg_display').focus();
+      window.history.replaceState(null, '', '?tab=register');
+    } else {
+      tabLogin.classList.add('active'); tabLogin.setAttribute('aria-selected','true');
+      tabRegister.classList.remove('active'); tabRegister.setAttribute('aria-selected','false');
+      registerForm.style.display = 'none';
+      loginForm.style.display = '';
+      panelTitle.textContent = 'Log In to Your Account';
+      panelSub.textContent = 'Choose your role, then sign in to open your warehouse dashboard.';
+      authSwitch.innerHTML = 'Don\'t have an account? <a href="#" id="switchToRegister">Create one now</a>';
+      document.getElementById('login_username').focus();
+      window.history.replaceState(null, '', '?tab=login');
+    }
+  }
+  tabLogin.addEventListener('click', () => setTab('login'));
+  tabRegister.addEventListener('click', () => setTab('register'));
+  authSwitch.addEventListener('click', (e) => {
+    if(e.target && e.target.tagName === 'A'){
+      e.preventDefault();
+      if(e.target.id === 'switchToRegister') setTab('register');
+      else if(e.target.id === 'switchToLogin') setTab('login');
+    }
+  });
+  /* tell the user whether the data is coming from MongoDB or the browser cache */
+  if(window.AP){
+    AP.ready.then((online) => {
+      if(online) showInfo('Connected to MongoDB — accounts you register are saved to the assertpro database.');
+      else showInfo('Server offline — using browser storage. Run "npm start" to use MongoDB.');
+      const hint = document.getElementById('firstRunHint');
+      if(hint && loadUsers().length > 0) hint.style.display = 'none';
+    });
+  }
+
+  (function applyInitialTab(){
+    const qp = new URLSearchParams(window.location.search);
+    const tab = (qp.get('tab') || 'login').toLowerCase();
+    setTab(tab === 'register' ? 'register' : 'login');
+  })();
+
+  /* -------- SUBMIT HELPERS -------- */
+  function setBtnLoading(btn, label){
+    btn.disabled = true; btn.dataset.originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner"></span>' + label;
+  }
+  function unsetBtnLoading(btn){
+    btn.disabled = false; btn.innerHTML = btn.dataset.originalText || btn.textContent;
+  }
+  function roleTitle(role){ return role === 'admin' ? 'Admin' : 'User'; }
+  function homeFor(role){ return role === 'admin' ? 'panda-admin.html' : 'panda-user.html'; }
+
+  /* login against MongoDB first, browser store only when the server is down */
+  async function doLogin(username, password, roleOverride){
+    const btn = document.getElementById('btnLoginSubmit');
+    setBtnLoading(btn, 'Signing in…');
+    const wanted = roleOverride || getLoginRole();
+
+    if(window.AP){ try{ await AP.ready; }catch(_){} }
+    if(window.AP && AP.online){
+      try{
+        const user = await AP.login({ username, password, role: wanted });
+        setSession(user);
+        await AP.refresh();
+        showSuccess('Welcome back, ' + (user.displayName || user.username) + '! Redirecting…');
+        setTimeout(() => { window.location.href = homeFor(user.role); }, 800);
+        unsetBtnLoading(btn);
+        return true;
+      }catch(err){
+        showError(err.message || 'Invalid username or password.');
+        unsetBtnLoading(btn);
+        return false;
+      }
+    }
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const user = findUser(username, password);
+        if(!user){
+          showError('Invalid username or password. No account matched in the local cache.');
+          unsetBtnLoading(btn); resolve(false); return;
+        }
+        if(user.role !== wanted){
+          showError('That account is registered as ' + roleTitle(user.role) +
+                    '. Please switch the role selector to ' + roleTitle(user.role) + ' and try again.');
+          unsetBtnLoading(btn); resolve(false); return;
+        }
+        setSession(user);
+        showSuccess('Welcome back, ' + (user.displayName || user.username) + '! Redirecting…');
+        setTimeout(() => { window.location.href = homeFor(user.role); }, 800);
+        unsetBtnLoading(btn); resolve(true);
+      }, 320);
+    });
+  }
+
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const u = document.getElementById('login_username').value.trim();
+    const p = document.getElementById('login_password').value;
+    if(!u){ showError('Please enter your username.'); document.getElementById('login_username').focus(); return; }
+    if(!p){ showError('Please enter your password.'); document.getElementById('login_password').focus(); return; }
+    doLogin(u, p);
+  });
+
+
+  ['login_username','login_password'].forEach((id) => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', () => { if(errorBanner.classList.contains('show')) errorBanner.classList.remove('show'); });
+  });
+
+  registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnRegisterSubmit');
+    const displayName = document.getElementById('reg_display').value.trim();
+    const username = document.getElementById('reg_username').value.trim().toLowerCase();
+    const pw = document.getElementById('reg_password').value;
+    const cf = document.getElementById('reg_confirm').value;
+    const role = getRegisterRole();
+
+    if(!displayName){ showError('Please enter your full name.'); document.getElementById('reg_display').focus(); return; }
+    if(!username){ showError('Please choose a username.'); document.getElementById('reg_username').focus(); return; }
+    if(!pw || pw.length < 6){ showError('Password must be at least 6 characters.'); document.getElementById('reg_password').focus(); return; }
+    if(pw !== cf){ showError('Passwords do not match.'); document.getElementById('reg_confirm').focus(); return; }
+    if(usernameExists(username)){ showError('That username is already taken. Please pick another.'); document.getElementById('reg_username').focus(); return; }
+
+    setBtnLoading(btn, 'Creating account…');
+
+    /* new registrations are written to the users/admins collections in MongoDB */
+    if(window.AP){ try{ await AP.ready; }catch(_){} }
+    if(window.AP && AP.online){
+      try{
+        const rec = await AP.register({ username, password: pw, displayName, role });
+        setSession(rec);
+        await AP.refresh();
+        showSuccess('Account saved to MongoDB as ' + roleTitle(role) + '. Welcome, ' + displayName + '! Redirecting…');
+        setTimeout(() => { window.location.href = homeFor(role); }, 1000);
+        unsetBtnLoading(btn);
+        return;
+      }catch(err){
+        showError(err.message || 'Could not create that account.');
+        unsetBtnLoading(btn);
+        return;
+      }
+    }
+
+    setTimeout(() => {
+      const now = isoNow();
+      const rec = { username, password: pw, displayName, role, joined: now, lastUpdated: now };
+      const users = loadUsers();
+      users.push(rec);
+      saveUsers(users);
+      setSession(rec);
+      showSuccess('Account created as ' + roleTitle(role) + '. Welcome, ' + displayName + '! Redirecting…');
+      setTimeout(() => { window.location.href = homeFor(role); }, 1000);
+      unsetBtnLoading(btn);
+    }, 400);
+  });
+</script>
+</body>
+</html>

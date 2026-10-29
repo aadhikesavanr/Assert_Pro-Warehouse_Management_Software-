@@ -1,0 +1,4 @@
+Collections  ->  companies, admins, users, items, movements, activity
+Start empty  ->  register your first admin at /panda-login.html
+AssertPro server  ->  http://localhost:3000
+MongoDB           ->  mongodb://localhost:27017/assertpro

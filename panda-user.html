@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Warehouse Portal — AssertPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14231A; --blue:#12A594; --teal:#12A594; --teal-dark:#0E7C6B;
+    --purple:#3B1E5C; --purple-deep:#2A1049; --purple-rail:#2A0F4D;
+    --ink:#182019; --steel:#64716A; --paper:#FFFFFF; --paper-2:#F4F7F4; --line:#E4E9E6;
+    --ok:#0F7A56; --ok-bg:#E4F7F0; --danger:#C0392B; --danger-bg:#FBE7E5;
+    --warn:#B06318; --warn-bg:#FDF1DC; --info:#1A5C99; --info-bg:#E4EEF9;
+    --rail-icon:#B9A6D9;
+  }
+  html[data-theme="dark"]{
+    --navy:#DCEBDD; --blue:#4FD6C2; --teal:#4FD6C2; --teal-dark:#7FE3D4;
+    --purple:#4B2A72; --purple-deep:#2A1049; --purple-rail:#1E0B38;
+    --ink:#E6EFE7; --steel:#A3B2A6; --paper:#12181A; --paper-2:#181F1C; --line:#28332C;
+    --ok:#51D39A; --ok-bg:#0F2F23; --danger:#FF6F5E; --danger-bg:#3B1D1B;
+    --warn:#FFC46B; --warn-bg:#3B2A16; --info:#7EB8EE; --info-bg:#102944;
+    --rail-icon:#B9A6D9;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--paper-2); line-height:1.5; font-size:14px; }
+  h1,h2,h3,.brand-name{ font-family:'Manrope',sans-serif; }
+  button{ font-family:'Inter',sans-serif; }
+  :focus-visible{ outline:2px solid var(--teal); outline-offset:2px; }
+  .hidden{ display:none !important; }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb{ background:#D3DAD6; border-radius:8px; }
+  html[data-theme="dark"] ::-webkit-scrollbar-thumb{ background:#2E3A33; }
+
+  /* ================= APP SHELL ================= */
+  .app{ display:flex; height:100vh; overflow:hidden; }
+
+  /* --- icon rail --- */
+  .rail{ width:58px; flex:none; background:var(--purple-rail); display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 0; }
+  .rail-btn{ width:38px; height:38px; border-radius:9px; border:none; background:transparent; color:var(--rail-icon); display:grid; place-items:center; cursor:pointer; }
+  .rail-btn:hover{ background:rgba(255,255,255,0.1); color:#fff; }
+  .rail-btn.active{ background:rgba(255,255,255,0.16); color:#fff; }
+  .rail-btn svg{ width:19px; height:19px; stroke-width:1.9; }
+  .rail-spacer{ flex:1; }
+
+  /* --- sidebar --- */
+  .sidebar{ width:290px; flex:none; background:var(--paper); border-right:1px solid var(--line); display:flex; flex-direction:column; overflow:hidden; }
+  .side-head{ padding:18px 16px 14px; border-bottom:1px solid var(--line); text-align:center; }
+  .brand{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .brand .mark{ width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--purple),var(--teal)); display:grid; place-items:center; color:#fff; font-size:1.3rem; }
+  .brand-name{ font-weight:800; font-size:1.02rem; color:var(--navy); line-height:1.2; }
+  .brand-sub{ font-size:0.78rem; color:var(--steel); }
+  .side-search{ position:relative; padding:12px 14px 6px; }
+  .side-search input{ width:100%; padding:10px 12px 10px 32px; border:1px solid var(--line); border-radius:8px; background:var(--paper-2); color:var(--ink); font-size:0.84rem; }
+  .side-search input:focus{ outline:2px solid var(--teal); outline-offset:0; border-color:transparent; }
+  .side-search svg{ position:absolute; left:24px; top:50%; transform:translateY(-30%); width:15px; height:15px; color:var(--steel); stroke-width:2; }
+
+  .side-scroll{ flex:1; overflow-y:auto; padding:8px 12px 16px; }
+  .nav-group{ margin-bottom:6px; }
+  .nav-group-head{ display:flex; align-items:center; gap:8px; width:100%; background:transparent; border:none; padding:9px 8px; cursor:pointer; font-weight:700; font-size:0.82rem; color:var(--ink); border-radius:8px; }
+  .nav-group-head:hover{ background:var(--paper-2); }
+  .nav-group-head .gcount{ color:var(--steel); font-weight:600; }
+  .nav-group-head .chev{ margin-left:auto; transition:transform .15s; color:var(--steel); }
+  .nav-group.collapsed .chev{ transform:rotate(-90deg); }
+  .nav-group.collapsed .nav-items{ display:none; }
+  .nav-items{ display:flex; flex-direction:column; gap:1px; padding-left:4px; }
+  .nav-item{ display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:8px; border:none; background:transparent; text-align:left; cursor:pointer; font-size:0.85rem; color:var(--ink); font-weight:500; width:100%; }
+  .nav-item:hover{ background:var(--paper-2); }
+  .nav-item .dot{ width:7px; height:7px; border-radius:50%; background:#CBD3CE; flex:none; }
+  .nav-item.active{ background:var(--ok-bg); color:var(--teal-dark); font-weight:700; }
+  .nav-item.active .dot{ background:var(--teal); }
+  .side-foot{ padding:14px; border-top:1px solid var(--line); }
+  .create-btn{ width:100%; background:var(--purple); color:#fff; border:none; border-radius:9px; padding:13px; font-weight:700; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .create-btn:hover{ filter:brightness(1.12); }
+  .create-btn svg{ width:16px; height:16px; stroke-width:2.4; }
+  .side-links{ display:flex; justify-content:space-between; margin-top:10px; font-size:0.78rem; }
+  .side-links button{ background:none; border:none; color:var(--steel); cursor:pointer; font-size:0.78rem; padding:2px 0; }
+  .side-links button:hover{ color:var(--teal-dark); text-decoration:underline; }
+
+  /* --- main --- */
+  .main{ flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden; }
+  .topbar{ height:58px; flex:none; background:var(--paper); border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; padding:0 20px; }
+  .back-btn{ width:32px; height:32px; border-radius:8px; border:1px solid var(--line); background:var(--paper); color:var(--steel); display:grid; place-items:center; cursor:pointer; flex:none; }
+  .back-btn:hover{ border-color:var(--teal); color:var(--teal-dark); }
+  .crumb{ display:flex; align-items:center; gap:7px; font-size:0.86rem; color:var(--steel); white-space:nowrap; }
+  .crumb b{ color:var(--ink); font-weight:700; }
+  .crumb .home{ display:grid; place-items:center; color:var(--steel); }
+  .crumb svg{ width:15px; height:15px; stroke-width:2; }
+  .tab-chip{ display:flex; align-items:center; gap:7px; padding:6px 12px; background:var(--ok-bg); color:var(--teal-dark); border-radius:8px; font-weight:700; font-size:0.82rem; white-space:nowrap; }
+  .tab-chip .dot{ width:7px; height:7px; border-radius:50%; background:var(--teal); }
+  .topbar-search{ margin-left:auto; position:relative; }
+  .topbar-search input{ width:260px; padding:10px 12px 10px 34px; border:1px solid var(--line); border-radius:9px; background:var(--paper); color:var(--ink); font-size:0.85rem; }
+  .topbar-search input:focus{ outline:2px solid var(--teal); outline-offset:0; border-color:transparent; }
+  .topbar-search svg{ position:absolute; left:11px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--steel); stroke-width:2; }
+  .bell{ position:relative; width:38px; height:38px; border-radius:9px; border:1px solid var(--line); background:var(--paper); color:var(--steel); display:grid; place-items:center; cursor:pointer; flex:none; }
+  .bell:hover{ border-color:var(--teal); color:var(--teal-dark); }
+  .bell svg{ width:18px; height:18px; stroke-width:1.9; }
+  .bell .badge{ position:absolute; top:-6px; right:-6px; background:var(--warn); color:#fff; font-size:0.66rem; font-weight:800; border-radius:999px; padding:1px 6px; }
+  .avatar{ width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--purple),var(--teal)); color:#fff; display:grid; place-items:center; font-weight:800; font-size:0.82rem; flex:none; border:none; cursor:pointer; }
+
+  .content{ flex:1; overflow-y:auto; }
+
+  /* --- collection header --- */
+  .page{ padding:22px 26px 40px; }
+  .page-title-row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
+  .page-title-row h1{ margin:0; font-size:1.3rem; color:var(--navy); margin-right:auto; }
+  .toolbar-icons{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .tbtn{ width:38px; height:38px; border-radius:9px; border:1px solid var(--line); background:var(--paper); color:var(--steel); display:grid; place-items:center; cursor:pointer; }
+  .tbtn:hover{ border-color:var(--teal); color:var(--teal-dark); }
+  .tbtn.on{ border-color:var(--teal); color:var(--teal-dark); background:var(--ok-bg); }
+  .tbtn svg{ width:17px; height:17px; stroke-width:1.9; }
+  .add-btn{ display:flex; align-items:center; gap:7px; background:var(--teal); color:#fff; border:none; border-radius:9px; padding:10px 16px; font-weight:700; font-size:0.86rem; cursor:pointer; }
+  .add-btn:hover{ filter:brightness(1.06); }
+  .add-btn svg{ width:15px; height:15px; stroke-width:2.4; }
+  .add-btn .caret{ border-left:1px solid rgba(255,255,255,0.4); padding-left:8px; margin-left:2px; }
+
+  .panel{ background:var(--paper); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .panel-top{ padding:14px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .rec-count{ font-size:0.83rem; color:var(--steel); font-weight:600; }
+  .rec-count b{ color:var(--ink); }
+  .chip-filter{ display:inline-flex; align-items:center; gap:7px; background:var(--ok-bg); color:var(--teal-dark); border:none; border-radius:999px; padding:5px 12px; font-size:0.78rem; font-weight:700; cursor:pointer; }
+  .chip-filter .x{ font-weight:800; }
+
+  table{ width:100%; border-collapse:collapse; font-size:0.86rem; }
+  thead th{ text-align:left; font-size:0.71rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--steel); font-weight:700; padding:11px 12px; border-bottom:1px solid var(--line); white-space:nowrap; background:var(--paper); }
+  tbody td{ padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:var(--paper-2); cursor:pointer; }
+  tbody tr.selected{ background:#E9F7F4; }
+  html[data-theme="dark"] tbody tr.selected{ background:#14312B; }
+  .chk{ width:15px; height:15px; accent-color:var(--teal); cursor:pointer; }
+  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.83rem; }
+  .thumb{ width:34px; height:26px; border-radius:6px; background:var(--paper-2); border:1px solid var(--line); display:grid; place-items:center; font-size:0.85rem; }
+  .status-pill{ display:inline-flex; align-items:center; gap:6px; font-size:0.73rem; font-weight:700; padding:3px 10px; border-radius:5px; }
+  .st-ok{ background:var(--ok-bg); color:var(--ok); }
+  .st-warn{ background:var(--warn-bg); color:var(--warn); }
+  .st-danger{ background:var(--danger-bg); color:var(--danger); }
+  .empty-row{ text-align:center; padding:38px 14px; color:var(--steel); }
+
+  /* ================= DETAIL VIEW ================= */
+  .detail-head{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:6px; }
+  .detail-head h1{ margin:0; font-size:1.25rem; color:var(--navy); margin-right:auto; }
+  .ghost-btn{ border:none; background:transparent; color:var(--teal-dark); font-weight:700; font-size:0.86rem; cursor:pointer; }
+  .ghost-btn:hover{ text-decoration:underline; }
+  .save-btn{ background:var(--teal); color:#fff; border:none; border-radius:8px; padding:10px 18px; font-weight:700; font-size:0.86rem; cursor:pointer; }
+  .save-btn:hover{ filter:brightness(1.06); }
+  .autofill-btn{ display:inline-flex; align-items:center; gap:7px; background:var(--paper); border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:10px 16px; font-weight:700; font-size:0.86rem; cursor:pointer; }
+  .autofill-btn:hover{ border-color:var(--teal); color:var(--teal-dark); }
+  .autofill-btn svg{ width:15px; height:15px; stroke-width:2; }
+
+  .tabs{ display:flex; gap:4px; border-bottom:1px solid var(--line); margin:16px 0 22px; overflow-x:auto; }
+  .tab{ background:transparent; border:none; padding:11px 14px; font-weight:700; font-size:0.85rem; color:var(--steel); border-bottom:2px solid transparent; cursor:pointer; white-space:nowrap; }
+  .tab:hover{ color:var(--ink); }
+  .tab.active{ color:var(--teal-dark); border-bottom-color:var(--teal); }
+
+  .record-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:22px; align-items:start; }
+  .media-box{ background:var(--paper); border:1px solid var(--line); border-radius:12px; min-height:230px; display:grid; place-items:center; padding:18px; }
+  .media-box .glyph{ font-size:4.6rem; line-height:1; filter:saturate(0.95); }
+  .side-card{ background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+  .side-card h4{ margin:0 0 12px; font-size:0.92rem; color:var(--navy); display:flex; align-items:center; gap:8px; }
+  .side-card .srow{ display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line); font-size:0.85rem; }
+  .side-card .srow:last-child{ border-bottom:none; }
+  .side-card .srow .k{ color:var(--steel); }
+  .side-card .srow .v{ font-weight:700; }
+
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px 22px; margin-top:22px; }
+  .fld{ display:flex; flex-direction:column; gap:6px; }
+  .fld label{ font-size:0.8rem; font-weight:600; color:var(--steel); }
+  .fld label .req{ color:var(--danger); }
+  .fld input, .fld select{ padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink); font-size:0.87rem; width:100%; }
+  .fld input:focus, .fld select:focus{ outline:2px solid var(--teal); outline-offset:0; border-color:transparent; }
+  .fld .help{ font-size:0.72rem; color:var(--steel); }
+
+  .attach-box{ border:1.5px dashed var(--line); border-radius:10px; padding:14px; display:flex; align-items:center; gap:12px; }
+  .attach-box .ico{ width:38px; height:38px; border-radius:50%; background:var(--ok-bg); color:var(--ok); display:grid; place-items:center; font-size:1rem; flex:none; }
+  .attach-box .nm{ font-weight:700; font-size:0.85rem; }
+  .attach-box .sz{ font-size:0.76rem; color:var(--steel); }
+  .attach-box .rm{ margin-left:auto; background:none; border:none; color:var(--steel); font-size:1.1rem; cursor:pointer; }
+
+  /* ================= ACTIVITY ================= */
+  .activity-table th{ background:var(--paper); }
+  .activity-table td{ vertical-align:top; }
+  .who{ display:flex; align-items:flex-start; gap:9px; }
+  .who .av{ width:28px; height:28px; border-radius:50%; background:var(--paper-2); border:1px solid var(--line); display:grid; place-items:center; font-size:0.72rem; font-weight:800; color:var(--teal-dark); flex:none; }
+  .who .nm{ font-weight:700; font-size:0.84rem; }
+  .who .src{ font-size:0.74rem; color:var(--steel); }
+  .sum{ font-size:0.84rem; line-height:1.75; }
+  .pill-soft{ background:var(--paper-2); border-radius:4px; padding:1px 6px; font-size:0.79rem; color:var(--steel); }
+  .val-old{ color:var(--danger); font-weight:700; text-decoration:line-through; }
+  .val-new{ color:var(--ok); font-weight:700; }
+  .val-mono{ color:var(--warn); font-weight:600; }
+  .act-tag{ font-size:0.78rem; font-weight:700; }
+  .act-tag.create{ color:var(--teal-dark); }
+  .act-tag.delete{ color:var(--danger); }
+  .act-link{ color:var(--info); font-size:0.79rem; cursor:pointer; display:inline-block; margin-left:8px; }
+  .act-link:hover{ text-decoration:underline; }
+
+  /* ================= RIGHT DRAWER ================= */
+  .drawer{ width:0; flex:none; background:var(--paper); border-left:1px solid var(--line); overflow:hidden; transition:width .18s ease; display:flex; flex-direction:column; }
+  .drawer.open{ width:400px; }
+  .drawer-inner{ width:400px; height:100%; display:flex; flex-direction:column; }
+  .drawer-head{ background:var(--purple); color:#fff; padding:16px 18px; display:flex; align-items:center; gap:12px; }
+  .drawer-head .t{ font-weight:800; font-size:0.95rem; font-family:'Manrope',sans-serif; margin-right:auto; }
+  .drawer-head .x{ background:rgba(255,255,255,0.16); border:none; color:#fff; width:28px; height:28px; border-radius:7px; cursor:pointer; font-size:0.95rem; }
+  .drawer-head .x:hover{ background:rgba(255,255,255,0.28); }
+  .drawer-body{ flex:1; overflow-y:auto; padding:16px 18px; }
+  .full-btn{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:var(--paper); border:1px solid var(--line); border-radius:9px; padding:12px; font-weight:700; font-size:0.86rem; color:var(--ink); cursor:pointer; margin-bottom:20px; }
+  .full-btn:hover{ border-color:var(--teal); color:var(--teal-dark); }
+  .full-btn svg{ width:15px; height:15px; stroke-width:2; }
+  .drawer-foot{ border-top:1px solid var(--line); padding:14px 18px; display:flex; align-items:center; gap:12px; }
+  .drawer-foot .autofill-btn{ flex:1; justify-content:center; }
+  .drawer-foot .save-btn{ margin-left:auto; }
+
+  /* ================= TOAST / MODAL ================= */
+  .toast{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(16px); background:var(--purple-deep); color:#fff; padding:12px 20px; border-radius:9px; font-size:0.85rem; font-weight:600; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:90; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .overlay{ position:fixed; inset:0; background:rgba(20,10,35,0.5); display:none; align-items:center; justify-content:center; z-index:80; padding:20px; }
+  .overlay.show{ display:flex; }
+  .modal{ background:var(--paper); border:1px solid var(--line); border-radius:14px; width:100%; max-width:520px; padding:22px; max-height:90vh; overflow-y:auto; }
+  .modal h3{ margin:0 0 4px; font-size:1.1rem; color:var(--navy); }
+  .modal .sub{ font-size:0.82rem; color:var(--steel); margin:0 0 16px; }
+  .modal-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+  .modal-actions .cancel{ background:transparent; border:none; color:var(--teal-dark); font-weight:700; font-size:0.86rem; cursor:pointer; padding:10px 14px; }
+  .form-msg{ font-size:0.8rem; font-weight:600; padding:9px 12px; border-radius:7px; margin-bottom:12px; display:none; background:var(--danger-bg); color:var(--danger); }
+  .form-msg.show{ display:block; }
+
+  /* ================= PROFILE MENU ================= */
+  .profile-wrap{ position:relative; flex:none; }
+  .profile-menu{ position:absolute; top:46px; right:0; width:254px; background:var(--paper); border:1px solid var(--line); border-radius:12px; box-shadow:0 18px 40px rgba(20,10,35,0.22); padding:8px; z-index:70; }
+  .pm-head{ display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid var(--line); margin-bottom:6px; }
+  .pm-avatar{ width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--purple),var(--teal)); color:#fff; display:grid; place-items:center; font-weight:800; flex:none; }
+  .pm-name{ font-weight:800; font-size:0.88rem; }
+  .pm-sub{ font-size:0.74rem; color:var(--steel); }
+  .pm-sub.role{ text-transform:capitalize; }
+  .pm-item{ display:flex; align-items:center; gap:9px; width:100%; text-align:left; background:transparent; border:none; padding:10px; border-radius:8px; font-size:0.85rem; font-weight:600; color:var(--ink); cursor:pointer; }
+  .pm-item:hover{ background:var(--paper-2); }
+  .pm-item.danger{ color:var(--danger); }
+  .pm-item.danger:hover{ background:var(--danger-bg); }
+
+  /* ================= STOCK MOVEMENTS ================= */
+  .mv-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
+  .mv-ico{ width:28px; height:28px; border-radius:8px; display:grid; place-items:center; font-size:0.92rem; flex:none; }
+  .mv-in .mv-ico{ background:var(--ok-bg); color:var(--ok); }
+  .mv-out .mv-ico{ background:var(--warn-bg); color:var(--warn); }
+  .eta-cell{ display:flex; flex-direction:column; gap:1px; }
+  .eta-clock{ font-size:0.73rem; color:var(--steel); }
+  .row-actions{ display:flex; gap:6px; }
+  .mini-btn{ border:1px solid var(--line); background:var(--paper); color:var(--steel); border-radius:7px; padding:5px 10px; font-size:0.76rem; font-weight:700; cursor:pointer; }
+  .mini-btn:hover{ border-color:var(--teal); color:var(--teal-dark); }
+  .mini-btn.danger:hover{ border-color:var(--danger); color:var(--danger); }
+  .del-btn{ background:transparent; border:1.5px solid var(--danger-bg); color:var(--danger); border-radius:8px; padding:10px 16px; font-weight:700; font-size:0.86rem; cursor:pointer; }
+  .del-btn:hover{ background:var(--danger-bg); }
+  .type-picker{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .type-card{ border:1.5px solid var(--line); border-radius:10px; background:var(--paper-2); padding:12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:0.86rem; font-weight:700; color:var(--ink); }
+  .type-card.sel{ border-color:var(--teal); background:var(--ok-bg); color:var(--teal-dark); }
+
+  /* ================= STOCK IMAGES ================= */
+  .media-holder{ width:100%; display:grid; place-items:center; gap:12px; }
+  .media-holder img{ max-width:100%; max-height:260px; border-radius:8px; display:block; border:1px solid var(--line); }
+  .media-holder .glyph{ font-size:4.6rem; line-height:1; filter:saturate(0.95); }
+  .media-holder .hint{ font-size:0.8rem; color:var(--steel); }
+  .media-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .thumb-img{ width:36px; height:28px; border-radius:6px; object-fit:cover; border:1px solid var(--line); display:block; }
+  .img-thumb{ width:52px; height:42px; border-radius:8px; object-fit:cover; border:1px solid var(--line); flex:none; }
+  .img-preview{ display:flex; align-items:center; gap:12px; margin-top:8px; }
+  .img-preview img{ width:76px; height:58px; object-fit:cover; border-radius:8px; border:1px solid var(--line); }
+
+  @media (max-width:1180px){
+    .sidebar{ width:240px; }
+    .drawer.open, .drawer-inner{ width:340px; }
+  }
+  @media (max-width:900px){
+    .sidebar{ display:none; }
+    .record-grid, .form-grid, .modal-grid, .mv-grid{ grid-template-columns:1fr; }
+    .topbar-search input{ width:150px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= ICON RAIL ================= -->
+  <aside class="rail">
+    <button class="rail-btn active" id="railActivity" type="button" title="Activity stream">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+    </button>
+    <button class="rail-btn" id="railCollections" type="button" title="Collections / Inventory">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </button>
+    <button class="rail-btn" id="railForms" type="button" title="Stock in / stock out">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg>
+    </button>
+    <button class="rail-btn" id="railTools" type="button" title="Add a stock item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-2.4 2.4-2-2z"/></svg>
+    </button>
+    <div class="rail-spacer"></div>
+    <button class="rail-btn" id="themeToggle" type="button" title="Toggle theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </button>
+    <button class="rail-btn" id="railSettings" type="button" title="Account & settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.2a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4Z"/></svg>
+    </button>
+  </aside>
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="side-head">
+      <div class="brand">
+        <span class="mark">A</span>
+        <span class="brand-name">AssertPro</span>
+        <span class="brand-sub">Main Warehouse</span>
+      </div>
+    </div>
+
+    <div class="side-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="text" id="sideSearch" placeholder="Search side nav" autocomplete="off" />
+    </div>
+
+    <div class="side-scroll" id="sideScroll">
+      <div class="nav-group" data-group="collections">
+        <button class="nav-group-head" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Collections <span class="gcount">(4)</span>
+          <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="nav-items" id="collectionItems"></div>
+      </div>
+
+      <div class="nav-group" data-group="views">
+        <button class="nav-group-head" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v16l-6-4-6 4z"/></svg>
+          Saved views <span class="gcount">(2)</span>
+          <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="nav-items" id="viewItems"></div>
+      </div>
+
+      <div class="nav-group" data-group="forms">
+        <button class="nav-group-head" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg>
+          Forms <span class="gcount">(3)</span>
+          <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="nav-items" id="formItems"></div>
+      </div>
+    </div>
+
+    <div class="side-foot">
+      <button class="create-btn" id="btnCreate" type="button">
+        Create
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      </button>
+      <div class="side-links">
+        <button type="button" id="btnActivity">Latest changes</button>
+        <button type="button" id="btnLogout">Log Out</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <div class="topbar">
+      <button class="back-btn" id="btnBack" type="button" title="Back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="crumb">
+        <span class="home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        </span>
+        Home / <b id="crumbName">Inventory</b>
+        <span id="crumbRecord" class="hidden"> / <b id="crumbRecordId"></b></span>
+      </div>
+      <div class="tab-chip"><span class="dot"></span><span id="tabChipName">Inventory</span></div>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="text" id="globalSearch" placeholder="Search" autocomplete="off" />
+      </div>
+      <button class="bell" type="button" id="btnBell" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
+        <span class="badge">12</span>
+      </button>
+      <div class="profile-wrap">
+        <button class="avatar" id="btnAvatar" type="button" title="Account" aria-haspopup="true" aria-expanded="false">A</button>
+        <div class="profile-menu hidden" id="profileMenu">
+          <div class="pm-head">
+            <span class="pm-avatar" id="pmInitials">A</span>
+            <span>
+              <span class="pm-name" id="pmName">User</span>
+              <span class="pm-sub role" id="pmRole" style="display:block;">user</span>
+              <span class="pm-sub" id="pmCompany" style="display:block;">AssertPro</span>
+            </span>
+          </div>
+          <button class="pm-item" id="pmStockIn" type="button">🚚 Stock coming in (truck ETA)</button>
+          <button class="pm-item" id="pmStockOut" type="button">📦 Stock going out to stores</button>
+          <button class="pm-item" id="pmActivity" type="button">🕘 Latest changes</button>
+          <button class="pm-item" id="pmCompanyInfo" type="button">🏢 Company &amp; my admin</button>
+          <button class="pm-item danger" id="pmLogout" type="button">⎋ Log Out</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- ---------- COLLECTION VIEW ---------- -->
+      <div class="page" id="collectionView">
+        <div class="page-title-row">
+          <h1 id="pageTitle">Inventory</h1>
+          <div class="toolbar-icons">
+            <button class="tbtn" id="tFilter" type="button" title="Filter">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg>
+            </button>
+            <button class="tbtn" id="tSort" type="button" title="Sort">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h12M4 12h8M4 17h4"/><path d="M18 10V5m0 0-2.5 2.5M18 5l2.5 2.5"/></svg>
+            </button>
+            <button class="tbtn" id="tColumns" type="button" title="Columns">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg>
+            </button>
+            <button class="tbtn" id="tHide" type="button" title="Hide / show records">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+            </button>
+            <button class="tbtn" id="tExport" type="button" title="Export">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m0 0-4-4m4 4 4-4"/><path d="M4 19h16"/></svg>
+            </button>
+            <button class="add-btn" id="btnAdd" type="button">
+              Add
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+              <span class="caret">▾</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-top">
+            <div class="rec-count" id="recCount"><b>0</b> Records in collection</div>
+            <span id="activeViewChip"></span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:38px;"><input type="checkbox" class="chk" id="chkAll" /></th>
+                  <th>SKU</th>
+                  <th>Attachments</th>
+                  <th>Product</th>
+                  <th>Bin</th>
+                  <th>Quantity</th>
+                  <th>Reorder level</th>
+                  <th>Last updated</th>
+                  <th>Status</th>
+                  <th style="width:104px;text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-row hidden" id="tableEmpty">No records in this collection.</div>
+        </div>
+      </div>
+
+      <!-- ---------- DETAIL VIEW ---------- -->
+      <div class="page hidden" id="detailView">
+        <div class="detail-head">
+          <h1 id="detailTitle">—</h1>
+          <button class="ghost-btn" id="btnDetailCancel" type="button">Cancel</button>
+          <button class="autofill-btn" id="btnDetailAutofill" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg>
+            AI autofill
+          </button>
+          <button class="del-btn" id="btnDetailDelete" type="button">Delete record</button>
+          <button class="save-btn" id="btnDetailSave" type="button">Save</button>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-tab="record" type="button">Record details</button>
+          <button class="tab" data-tab="activity" type="button">Activity</button>
+          <button class="tab" data-tab="linked" type="button">Linked records</button>
+        </div>
+
+        <!-- record tab -->
+        <div id="tab-record">
+          <div class="record-grid">
+            <div class="media-box">
+              <div class="media-holder" id="recordMedia">
+                <div class="glyph" id="recordGlyph">📦</div>
+                <div class="hint">No stock image yet.</div>
+              </div>
+            </div>
+            <input type="file" id="detailImageInput" class="hidden" accept="image/*" />
+            <div class="side-card">
+              <h4>Stock summary</h4>
+              <div class="srow"><span class="k">Quantity on hand</span><span class="v" id="sumQty">—</span></div>
+              <div class="srow"><span class="k">Reorder level</span><span class="v" id="sumReorder">—</span></div>
+              <div class="srow"><span class="k">Stock status</span><span class="v" id="sumStatus">—</span></div>
+              <div class="srow"><span class="k">Storage bin</span><span class="v" id="sumBin">—</span></div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="fld">
+              <label for="d_description">Product description <span class="req">*</span></label>
+              <input type="text" id="d_description" />
+            </div>
+            <div class="fld">
+              <label for="d_category">Category</label>
+              <select id="d_category">
+                <option>Packaging</option><option>Storage</option><option>Consumables</option>
+                <option>Equipment</option><option>Cold Storage</option><option>Other</option>
+              </select>
+            </div>
+            <div class="fld">
+              <label for="d_bin">Bin / location</label>
+              <select id="d_bin"></select>
+            </div>
+            <div class="fld">
+              <label for="d_supplier">Supplier</label>
+              <input type="text" id="d_supplier" />
+            </div>
+            <div class="fld">
+              <label for="d_qty">Quantity on hand</label>
+              <input type="number" id="d_qty" min="0" />
+            </div>
+            <div class="fld">
+              <label for="d_reorder">Reorder level</label>
+              <input type="number" id="d_reorder" min="0" />
+            </div>
+            <div class="fld">
+              <label for="d_inspection">Last inspection date</label>
+              <input type="date" id="d_inspection" />
+            </div>
+            <div class="fld">
+              <label for="d_warranty">Warranty / expiry</label>
+              <input type="date" id="d_warranty" />
+            </div>
+          </div>
+
+          <div style="margin-top:20px;">
+            <label style="font-size:0.8rem; font-weight:600; color:var(--steel); display:block; margin-bottom:8px;">Attachments</label>
+            <div id="detailAttach"></div>
+          </div>
+        </div>
+
+        <!-- activity tab -->
+        <div id="tab-activity" class="hidden">
+          <div class="panel">
+            <div class="panel-top"><div class="rec-count"><b id="actCount">0</b> changes recorded</div></div>
+            <div style="overflow-x:auto;">
+              <table class="activity-table">
+                <thead>
+                  <tr><th style="width:160px;">Date &amp; time</th><th style="width:200px;">Changed by</th><th>Summary of changes</th></tr>
+                </thead>
+                <tbody id="activityBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- linked tab -->
+        <div id="tab-linked" class="hidden">
+          <div class="panel" style="padding:18px;">
+            <div class="rec-count" style="margin-bottom:12px;">Linked records for <b id="linkedFor">—</b></div>
+            <div id="linkedBody" class="form-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- STOCK MOVEMENTS (in / out) ---------- -->
+      <div class="page hidden" id="movementsView">
+        <div class="page-title-row">
+          <h1>Stock movements</h1>
+          <div class="toolbar-icons">
+            <button class="add-btn" id="btnNewIn" type="button">🚚 Stock in (truck arriving)</button>
+            <button class="add-btn" id="btnNewOut" type="button" style="background:var(--warn);">📦 Stock out to store</button>
+          </div>
+        </div>
+
+        <div class="mv-grid">
+          <div class="panel mv-in">
+            <div class="panel-top">
+              <span class="mv-ico">🚚</span>
+              <b>Stock coming in</b>
+              <span class="rec-count" id="inCount" style="margin-left:auto;">0 incoming</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table>
+                <thead>
+                  <tr><th>SKU / Product</th><th>Qty</th><th>Supplier</th><th>Truck ETA</th><th>Truck / driver</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody id="incomingBody"></tbody>
+              </table>
+            </div>
+            <div class="empty-row hidden" id="incomingEmpty">No incoming trucks scheduled.</div>
+          </div>
+
+          <div class="panel mv-out">
+            <div class="panel-top">
+              <span class="mv-ico">📦</span>
+              <b>Stock going out</b>
+              <span class="rec-count" id="outCount" style="margin-left:auto;">0 outgoing</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table>
+                <thead>
+                  <tr><th>SKU / Product</th><th>Qty</th><th>Store</th><th>Ref</th><th>Status</th><th>Date</th><th></th></tr>
+                </thead>
+                <tbody id="outgoingBody"></tbody>
+              </table>
+            </div>
+            <div class="empty-row hidden" id="outgoingEmpty">No outgoing stock recorded.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- ACTIVITY (global) ---------- -->
+      <div class="page hidden" id="activityView">
+        <div class="page-title-row"><h1>Latest changes</h1></div>
+        <div class="panel">
+          <div class="panel-top"><div class="rec-count"><b id="gActCount">0</b> changes recorded</div></div>
+          <div style="overflow-x:auto;">
+            <table class="activity-table">
+              <thead>
+                <tr><th style="width:160px;">Date &amp; time</th><th style="width:200px;">Changed by</th><th>Summary of changes</th></tr>
+              </thead>
+              <tbody id="globalActivityBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= RIGHT DRAWER ================= -->
+  <aside class="drawer" id="drawer">
+    <div class="drawer-inner">
+      <div class="drawer-head">
+        <span class="t" id="drawerTitle">—</span>
+        <button class="x" id="drawerClose" type="button">✕</button>
+      </div>
+      <div class="drawer-body">
+        <button class="full-btn" id="btnFullDetails" type="button">
+          View full details
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-8 8M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
+        </button>
+
+        <div class="fld" style="margin-bottom:16px;">
+          <label>SKU</label>
+          <input type="text" id="dr_sku" readonly />
+        </div>
+        <div class="fld" style="margin-bottom:16px;">
+          <label>Bin / location</label>
+          <select id="dr_bin"></select>
+        </div>
+        <div class="fld" style="margin-bottom:16px;">
+          <label>Description <span class="req">*</span></label>
+          <input type="text" id="dr_description" />
+        </div>
+        <div class="fld" style="margin-bottom:16px;">
+          <label>Supplier</label>
+          <input type="text" id="dr_supplier" />
+        </div>
+        <div class="fld" style="margin-bottom:16px;">
+          <label>Quantity on hand</label>
+          <input type="number" id="dr_qty" min="0" />
+        </div>
+        <div class="fld" style="margin-bottom:16px;">
+          <label>Reorder level</label>
+          <input type="number" id="dr_reorder" min="0" />
+        </div>
+        <div class="fld" style="margin-bottom:16px;">
+          <label>Last inspection date</label>
+          <input type="date" id="dr_inspection" />
+        </div>
+        <div class="fld">
+          <label>Warranty</label>
+          <input type="date" id="dr_warranty" />
+        </div>
+        <div class="fld" style="margin-top:16px;">
+          <label>Stock image</label>
+          <input type="file" id="dr_image" class="file-input" accept="image/*" />
+          <div class="img-preview hidden" id="dr_image_preview">
+            <img id="dr_image_thumb" alt="stock preview" />
+            <button class="mini-btn danger" type="button" id="dr_image_clear">Remove image</button>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-foot">
+        <button class="autofill-btn" id="btnDrawerAutofill" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg>
+          AI autofill
+        </button>
+        <button class="save-btn" id="btnDrawerSave" type="button">Save</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ================= CREATE MODAL ================= -->
+<div class="overlay" id="createOverlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3>Create Record</h3>
+    <p class="sub">Add a new product to the warehouse collection.</p>
+    <div class="form-msg" id="createMsg"></div>
+    <div class="modal-grid">
+      <div class="fld"><label for="c_product">Product <span class="req">*</span></label><input type="text" id="c_product" placeholder="e.g. Pallet Wrap Film" /></div>
+      <div class="fld"><label for="c_category">Category</label>
+        <select id="c_category"><option>Packaging</option><option>Storage</option><option>Consumables</option><option>Equipment</option><option>Cold Storage</option><option>Other</option></select>
+      </div>
+      <div class="fld"><label for="c_bin">Bin / location</label><input type="text" id="c_bin" placeholder="e.g. A-15" /></div>        <div class="fld"><label for="c_supplier">Supplier</label><input type="text" id="c_supplier" placeholder="e.g. your supplier name" /></div>
+      <div class="fld"><label for="c_qty">Quantity on hand</label><input type="number" id="c_qty" min="0" value="0" /></div>
+      <div class="fld"><label for="c_reorder">Reorder level</label><input type="number" id="c_reorder" min="0" value="0" /></div>
+    </div>
+
+    <div class="fld" style="margin-top:14px;">
+      <label for="c_image">Stock image</label>
+      <input type="file" id="c_image" class="file-input" accept="image/*" />
+      <div class="img-preview hidden" id="c_image_preview">
+        <img id="c_image_thumb" alt="stock preview" />
+        <button class="mini-btn danger" type="button" id="c_image_clear">Remove image</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="cancel" id="createCancel" type="button">Cancel</button>
+      <button class="save-btn" id="createSave" type="button">Save to MongoDB</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= STOCK MOVEMENT MODAL ================= -->
+<div class="overlay" id="moveOverlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="moveTitle">Record stock movement</h3>
+    <p class="sub" id="moveSub">Move stock into the warehouse or dispatch it to a store.</p>
+    <div class="form-msg" id="moveMsg"></div>
+
+    <div class="type-picker">
+      <button class="type-card sel" id="typeIn" type="button">🚚 Stock in (arriving)</button>
+      <button class="type-card" id="typeOut" type="button">📦 Stock out (to store)</button>
+    </div>
+
+    <div class="modal-grid">
+      <div class="fld"><label for="mv_sku">Product / SKU <span class="req">*</span></label><select id="mv_sku"></select></div>
+      <div class="fld"><label for="mv_qty">Quantity <span class="req">*</span></label><input type="number" id="mv_qty" min="1" value="1" /></div>
+      <div class="fld"><label for="mv_party" id="mv_party_label">Supplier</label><input type="text" id="mv_party" placeholder="e.g. your supplier name" /></div>
+      <div class="fld"><label for="mv_ref">Reference (PO / order no.)</label><input type="text" id="mv_ref" placeholder="e.g. PO-0091" /></div>
+      <div class="fld" id="mv_eta_fld"><label for="mv_eta">Truck ETA (arrival time) <span class="req">*</span></label><input type="datetime-local" id="mv_eta" /></div>
+      <div class="fld" id="mv_status_fld"><label for="mv_status">Status</label>
+        <select id="mv_status"><option>In Transit</option><option>Scheduled</option><option>At gate</option><option>Unloading</option></select>
+      </div>
+      <div class="fld" id="mv_vehicle_fld"><label for="mv_vehicle">Truck / vehicle no.</label><input type="text" id="mv_vehicle" placeholder="e.g. TN-09-AB-4412" /></div>
+      <div class="fld" id="mv_driver_fld"><label for="mv_driver">Driver name</label><input type="text" id="mv_driver" placeholder="e.g. Suresh K." /></div>
+      <div class="fld"><label for="mv_notes">Notes</label><input type="text" id="mv_notes" placeholder="dock, seal, pallet count…" /></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="cancel" id="moveCancel" type="button">Cancel</button>
+      <button class="save-btn" id="moveSave" type="button">Save to MongoDB</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="assertpro-db.js"></script>
+<script>
+  /* ============================================================
+     AssertPro — staff portal
+     Data lives in MongoDB (see server.js) and is cached in
+     localStorage by assertpro-db.js so the page also works offline.
+     ============================================================ */
+  const USERS_KEY = 'assertpro_users_v1';
+  const SESSION_KEY = 'assertpro_session';
+  const INV_KEY = 'assertpro_items_v1';
+  const ACT_KEY = 'assertpro_activity_v1';
+  const MOV_KEY = 'assertpro_movements_v1';
+  const THEME_KEY = 'assertpro_theme';
+  const isOnline = () => !!(window.AP && AP.online);
+
+  /* display-only extras (never stored on the record itself) */
+  const GLYPH_BY_CATEGORY = { 'Packaging':'📦', 'Storage':'🗄️', 'Consumables':'🧰', 'Equipment':'🛠️', 'Cold Storage':'❄️', 'Other':'📋' };
+
+  const COLLECTIONS = [
+    { id:'inventory',  label:'Inventory',  glyph:'📦' },
+    { id:'locations',  label:'Locations',  glyph:'📍' },
+    { id:'suppliers',  label:'Suppliers',  glyph:'🏭' },
+    { id:'categories', label:'Categories', glyph:'🏷️' }
+  ];
+  const SAVED_VIEWS = [
+    { id:'low',  label:'Low Stock',    filter:(it) => it.qty > 0 && it.qty < it.reorder },
+    { id:'out',  label:'Out of Stock', filter:(it) => it.qty <= 0 }
+  ];
+  const FORMS = [
+    { id:'stockin',  label:'Stock In' },
+    { id:'stockout', label:'Stock Out' },
+    { id:'assign',   label:'Assign to' }
+  ];
+
+  const BINS = ['A-12','A-15','B-04','B-11','C-02','C-07','C-21','CS-01','E-01','E-02'];
+
+  /* ============================================================
+     STORAGE
+     ============================================================ */
+  function readJSON(key){ try{ const r = localStorage.getItem(key); return r ? JSON.parse(r) : null; }catch(_){ return null; } }
+  function writeJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(_){} }
+
+  function loadUsers(){
+    const a = readJSON(USERS_KEY);
+    return Array.isArray(a) ? a : [];
+  }
+  function loadInventory(){
+    const a = readJSON(INV_KEY);
+    return Array.isArray(a) ? a : [];
+  }
+  function saveInventory(list){ writeJSON(INV_KEY, list); }
+  function loadActivity(){
+    const a = readJSON(ACT_KEY);
+    return Array.isArray(a) ? a : [];
+  }
+  function saveActivity(list){ writeJSON(ACT_KEY, list); }
+  function loadMovements(){
+    const a = readJSON(MOV_KEY);
+    return Array.isArray(a) ? a : [];
+  }
+  function saveMovements(list){ writeJSON(MOV_KEY, list); }
+  function readSession(){ return readJSON(SESSION_KEY); }
+
+  /* ============================================================
+     GUARD
+     ============================================================ */
+  const session = readSession();
+  if(!session || !session.username){
+    window.location.replace('panda-login.html');
+  }
+
+  /* ============================================================
+     THEME
+     ============================================================ */
+  function applyTheme(theme, persist){
+    const root = document.documentElement;
+    if((root.getAttribute('data-theme') || 'light') !== theme){
+      if(theme === 'dark') root.setAttribute('data-theme','dark'); else root.removeAttribute('data-theme');
+    }
+    const btn = document.getElementById('themeToggle');
+    const moon = btn.querySelector('.icon-moon'), sun = btn.querySelector('.icon-sun');
+    if(theme === 'dark'){ moon.style.display='none'; sun.style.display='block'; }
+    else { moon.style.display='block'; sun.style.display='none'; }
+    if(persist !== false){ try{ localStorage.setItem(THEME_KEY, theme); }catch(_){} }
+  }
+  (function initTheme(){
+    let t = 'light', saved = null;
+    try{ saved = localStorage.getItem(THEME_KEY); }catch(_){}
+    if(saved === 'dark' || saved === 'light') t = saved;
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
+    if(saved !== 'dark' && saved !== 'light') applyTheme(t, false); else applyTheme(t, false);
+  })();
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    applyTheme((document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark', true);
+  });
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function statusOf(it){ if(Number(it.qty) <= 0) return 'Out of Stock'; if(Number(it.qty) < Number(it.reorder)) return 'Low Stock'; return 'In Stock'; }
+  function statusClass(s){ return s === 'Out of Stock' ? 'st-danger' : (s === 'Low Stock' ? 'st-warn' : 'st-ok'); }
+  function glyphOf(it){ return GLYPH_BY_CATEGORY[it.category] || '📦'; }
+  function fmtDate(v){
+    if(!v) return '—';
+    const d = new Date(v + (String(v).length === 10 ? 'T00:00:00' : ''));
+    if(Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('en-US', { month:'2-digit', day:'2-digit', year:'numeric' });
+  }
+  function fmtStamp(iso){
+    const d = new Date(iso);
+    if(Number.isNaN(d.getTime())) return '—';
+    const date = d.toLocaleDateString('en-US', { month:'numeric', day:'numeric', year:'numeric' });
+    const time = d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+    return date + ' ' + time;
+  }
+  function initials(name){
+    const parts = String(name || '?').trim().split(/\s+/);
+    return ((parts[0] || '?')[0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+  }
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  function logChange(entry){
+    const list = loadActivity();
+    list.unshift(Object.assign({ at:new Date().toISOString(), by: session.displayName || session.username, src:'Manual / Web' }, entry));
+    saveActivity(list);
+  }
+
+  /* ============================================================
+     USER HEADER
+     ============================================================ */
+  const currentUser = session && session.username ? (session.displayName || session.username) : 'User';
+  const userRole = (session && session.role) || 'user';
+  /* the account record in MongoDB is the source of truth for company/admin */
+  function myAccount(){
+    const me = String((session && session.username) || '').toLowerCase();
+    return loadUsers().find(u => String(u.username || '').toLowerCase() === me) || {};
+  }
+  const companyName = (session && session.company) || myAccount().company || AP.companyName();
+  const myAdmin = (session && session.adminUsername) || myAccount().adminUsername || null;
+  if(session && session.username){
+    document.getElementById('btnAvatar').textContent = initials(currentUser);
+    document.getElementById('btnAvatar').title = currentUser + ' — ' + userRole;
+    document.getElementById('pmInitials').textContent = initials(currentUser);
+    document.getElementById('pmName').textContent = currentUser;
+    document.getElementById('pmRole').textContent = userRole === 'admin' ? 'Administrator' : 'Warehouse staff';
+    document.getElementById('pmCompany').textContent = companyName;
+  }
+
+  /* ============================================================
+     SIDEBAR NAV
+     ============================================================ */
+  const collectionItems = document.getElementById('collectionItems');
+  const viewItems = document.getElementById('viewItems');
+  const formItems = document.getElementById('formItems');
+
+  function navButton(label, active){
+    return '<button class="nav-item' + (active ? ' active' : '') + '" type="button">' +
+             '<span class="dot"></span><span>' + esc(label) + '</span>' +
+           '</button>';
+  }
+  collectionItems.innerHTML = COLLECTIONS.map(c => navButton(c.glyph + '  ' + c.label, c.id === 'inventory')).join('');
+  viewItems.innerHTML = SAVED_VIEWS.map(v => navButton(v.label, false)).join('');
+  formItems.innerHTML = FORMS.map(f => navButton(f.label, false)).join('');
+
+  document.querySelectorAll('.nav-group-head').forEach(head => {
+    head.addEventListener('click', () => head.parentElement.classList.toggle('collapsed'));
+  });
+  document.getElementById('sideSearch').addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('.nav-item').forEach(item => {
+      const show = !q || item.textContent.toLowerCase().includes(q);
+      item.classList.toggle('hidden', !show);
+    });
+  });
+  collectionItems.addEventListener('click', (e) => {
+    const btn = e.target.closest('.nav-item'); if(!btn) return;
+    const idx = Array.from(collectionItems.children).indexOf(btn);
+    selectCollection(COLLECTIONS[idx].id);
+  });
+  viewItems.addEventListener('click', (e) => {
+    const btn = e.target.closest('.nav-item'); if(!btn) return;
+    const idx = Array.from(viewItems.children).indexOf(btn);
+    const view = SAVED_VIEWS[idx];
+    activeViewId = (activeViewId === view.id) ? null : view.id;
+    syncNavActive();
+    showCollection();
+    renderTable();
+  });
+  formItems.addEventListener('click', (e) => {
+    const btn = e.target.closest('.nav-item'); if(!btn) return;
+    const idx = Array.from(formItems.children).indexOf(btn);
+    toast('Form "' + FORMS[idx].label + '" will open here soon.');
+  });
+  function syncNavActive(){
+    Array.from(collectionItems.children).forEach((el, i) => el.classList.toggle('active', COLLECTIONS[i].id === activeCollectionId));
+    Array.from(viewItems.children).forEach((el, i) => el.classList.toggle('active', SAVED_VIEWS[i].id === activeViewId));
+  }
+
+  /* ============================================================
+     VIEW STATE
+     ============================================================ */
+  let activeCollectionId = 'inventory';
+  let activeViewId = null;
+  let searchTerm = '';
+  let sortAsc = true;
+  let selectedSku = null;
+  let hiddenMode = false;
+
+  const collectionView = document.getElementById('collectionView');
+  const detailView = document.getElementById('detailView');
+  const activityView = document.getElementById('activityView');
+  const movementsView = document.getElementById('movementsView');
+  const drawer = document.getElementById('drawer');
+
+  function collectionMeta(id){ return COLLECTIONS.find(c => c.id === id) || COLLECTIONS[0]; }
+
+  function showCollection(){
+    collectionView.classList.remove('hidden');
+    detailView.classList.add('hidden');
+    activityView.classList.add('hidden');
+    movementsView.classList.add('hidden');
+    setRailActive('railCollections');
+    document.getElementById('crumbRecord').classList.add('hidden');
+    const meta = collectionMeta(activeCollectionId);
+    document.getElementById('pageTitle').textContent = meta.label;
+    document.getElementById('crumbName').textContent = meta.label;
+    document.getElementById('tabChipName').textContent = activeViewId
+      ? SAVED_VIEWS.find(v => v.id === activeViewId).label
+      : meta.label;
+    document.getElementById('collectionView').querySelector('.tbtn').classList.toggle('on', !!activeViewId);
+  }
+  function selectCollection(id){
+    activeCollectionId = id;
+    activeViewId = null;
+    syncNavActive();
+    closeDrawer();
+    showCollection();
+    renderTable();
+  }
+
+  /* ============================================================
+     TABLE
+     ============================================================ */
+  const tableBody = document.getElementById('tableBody');
+  const tableEmpty = document.getElementById('tableEmpty');
+
+  function visibleRows(){
+    let rows = loadInventory();
+    const view = SAVED_VIEWS.find(v => v.id === activeViewId);
+    if(view) rows = rows.filter(view.filter);
+    if(hiddenMode) rows = rows.filter(it => Number(it.qty) > 0);
+    if(searchTerm){
+      const q = searchTerm;
+      rows = rows.filter(it =>
+        String(it.sku).toLowerCase().includes(q) ||
+        String(it.product).toLowerCase().includes(q) ||
+        String(it.bin).toLowerCase().includes(q) ||
+        String(it.category).toLowerCase().includes(q) ||
+        String(it.supplier || '').toLowerCase().includes(q));
+    }
+    rows.sort((a, b) => {
+      const v = String(a.sku).localeCompare(String(b.sku));
+      return sortAsc ? v : -v;
+    });
+    return rows;
+  }
+
+  function renderTable(){
+    const rows = visibleRows();
+    document.getElementById('recCount').innerHTML = '<b>' + rows.length + '</b> Records in collection';
+
+    const chip = document.getElementById('activeViewChip');
+    if(activeViewId){
+      const v = SAVED_VIEWS.find(x => x.id === activeViewId);
+      chip.innerHTML = '<button class="chip-filter" type="button">' + esc(v.label) +
+                       ' <span class="x">×</span></button>';
+      chip.querySelector('button').addEventListener('click', () => {
+        activeViewId = null; syncNavActive(); showCollection(); renderTable();
+      });
+    } else chip.innerHTML = '';
+
+    if(rows.length === 0){
+      tableBody.innerHTML = '';
+      tableEmpty.classList.remove('hidden');
+      tableEmpty.textContent = 'No records in this collection.';
+      return;
+    }
+    tableEmpty.classList.add('hidden');
+
+    tableBody.innerHTML = rows.map((it) => {
+      const st = statusOf(it);
+      const sel = (it.sku === selectedSku) ? ' class="selected"' : '';
+      const thumb = it.image
+        ? '<img class="thumb-img" src="' + it.image + '" alt="stock image" />'
+        : '<span style="color:var(--steel);">—</span>';
+      return '<tr data-sku="' + esc(it.sku) + '"' + sel + '>' +
+        '<td><input type="checkbox" class="chk rowchk" ' + (sel ? 'checked ' : '') + '/></td>' +
+        '<td class="mono">' + esc(it.sku) + '</td>' +
+        '<td>' + thumb + '</td>' +
+        '<td>' + esc(it.product) + '</td>' +
+        '<td class="mono">' + esc(it.bin) + '</td>' +
+        '<td><b>' + Number(it.qty).toLocaleString() + '</b></td>' +
+        '<td>' + Number(it.reorder).toLocaleString() + '</td>' +
+        '<td>' + fmtDate(it.updatedAt || it.createdAt) + '</td>' +
+        '<td><span class="status-pill ' + statusClass(st) + '">' + st + '</span></td>' +
+        '<td><div class="row-actions" style="justify-content:flex-end;">' +
+          '<button class="mini-btn" data-act="open" data-sku="' + esc(it.sku) + '">Edit</button>' +
+          '<button class="mini-btn danger" data-act="delete" data-sku="' + esc(it.sku) + '">Delete</button>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  tableBody.addEventListener('click', (e) => {
+    const act = e.target.closest('button[data-act]');
+    if(act){
+      if(act.dataset.act === 'delete') deleteRecord(act.dataset.sku);
+      else { selectedSku = act.dataset.sku; renderTable(); openDetail(selectedSku); }
+      return;
+    }
+    const row = e.target.closest('tr[data-sku]');
+    if(!row) return;
+    if(e.target.classList.contains('chk')){
+      row.classList.toggle('selected', e.target.checked);
+      selectedSku = e.target.checked ? row.dataset.sku : null;
+      return;
+    }
+    selectedSku = row.dataset.sku;
+    renderTable();
+    openDrawer(selectedSku);
+  });
+  document.getElementById('chkAll').addEventListener('change', (e) => {
+    const on = e.target.checked;
+    document.querySelectorAll('#tableBody tr').forEach(tr => {
+      tr.classList.toggle('selected', on);
+      const c = tr.querySelector('.rowchk'); if(c) c.checked = on;
+    });
+  });
+  document.getElementById('globalSearch').addEventListener('input', (e) => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    showCollection();
+    renderTable();
+  });
+  document.getElementById('tSort').addEventListener('click', (e) => {
+    sortAsc = !sortAsc;
+    e.currentTarget.classList.toggle('on', !sortAsc);
+    renderTable();
+  });
+  document.getElementById('tFilter').addEventListener('click', () => {
+    window.location.hash = '';
+    toast('Filters applied: showing records in ' + collectionMeta(activeCollectionId).label + '.');
+  });
+  document.getElementById('tColumns').addEventListener('click', () => toast('Column picker will open here soon.'));
+  document.getElementById('tHide').addEventListener('click', (e) => {
+    hiddenMode = !hiddenMode;
+    e.currentTarget.classList.toggle('on', hiddenMode);
+    renderTable();
+    toast(hiddenMode ? 'Hiding out-of-stock records.' : 'Showing all records.');
+  });
+  document.getElementById('tExport').addEventListener('click', () => {
+    const rows = visibleRows();
+    const head = 'SKU,Product,Category,Bin,Quantity,Reorder level,Status';
+    const body = rows.map(r => [r.sku, r.product, r.category, r.bin, r.qty, r.reorder, statusOf(r)]
+      .map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
+    const blob = new Blob([head + '\n' + body], { type:'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'assertpro-' + activeCollectionId + '.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('Exported ' + rows.length + ' record(s) to CSV.');
+  });
+  document.getElementById('btnBell').addEventListener('click', () => {
+    const incoming = loadMovements().filter(m => m.type === 'in');
+    if(incoming.length){
+      incoming.sort((a, b) => new Date(a.eta || 0) - new Date(b.eta || 0));
+      toast(incoming.length + ' incoming truck(s) — next ' + AP.etaText(incoming[0].eta) + '.');
+      showMovements();
+    } else {
+      toast('No incoming trucks scheduled.');
+    }
+  });
+
+  /* ---- log out (sidebar link + profile menu) ---- */
+  function doLogout(){
+    try{ localStorage.removeItem(SESSION_KEY); }catch(_){}
+    window.location.href = 'panda-login.html';
+  }
+  document.getElementById('btnLogout').addEventListener('click', doLogout);
+
+  /* ---- profile menu (avatar button) ---- */
+  const profileMenu = document.getElementById('profileMenu');
+  const btnAvatar = document.getElementById('btnAvatar');
+  function toggleProfile(open){
+    const show = (open === undefined) ? profileMenu.classList.contains('hidden') : !!open;
+    profileMenu.classList.toggle('hidden', !show);
+    btnAvatar.setAttribute('aria-expanded', String(show));
+  }
+  btnAvatar.addEventListener('click', (e) => { e.stopPropagation(); toggleProfile(); });
+  document.addEventListener('click', (e) => { if(!e.target.closest('.profile-wrap')) profileMenu.classList.add('hidden'); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') toggleProfile(false); });
+  document.getElementById('pmLogout').addEventListener('click', doLogout);
+  document.getElementById('pmActivity').addEventListener('click', () => { toggleProfile(false); showActivity(); });
+  document.getElementById('pmStockIn').addEventListener('click', () => { toggleProfile(false); showMovements(); openMovement('in'); });
+  document.getElementById('pmStockOut').addEventListener('click', () => { toggleProfile(false); showMovements(); openMovement('out'); });
+  document.getElementById('pmCompanyInfo').addEventListener('click', () => {
+    toggleProfile(false);
+    toast(companyName + ' → admin ' + (session.adminUsername || 'no admin yet') + ' → ' + currentUser);
+  });
+
+  /* ---- icon rail (leftmost column, below the clock) ---- */
+  function setRailActive(id){
+    document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
+    const el = document.getElementById(id);
+    if(el) el.classList.add('active');
+  }
+  document.getElementById('railActivity').addEventListener('click', () => showActivity());
+  document.getElementById('railCollections').addEventListener('click', () => { showCollection(); renderTable(); });
+  document.getElementById('railForms').addEventListener('click', () => showMovements());
+  document.getElementById('railTools').addEventListener('click', () => openCreate());
+  document.getElementById('railSettings').addEventListener('click', () => { toggleProfile(); toast('Signed in as ' + currentUser + ' (' + userRole + ')'); });
+
+  /* ============================================================
+     RIGHT DRAWER
+     ============================================================ */
+  const dr = {
+    sku: document.getElementById('dr_sku'),
+    bin: document.getElementById('dr_bin'),
+    description: document.getElementById('dr_description'),
+    supplier: document.getElementById('dr_supplier'),
+    qty: document.getElementById('dr_qty'),
+    reorder: document.getElementById('dr_reorder'),
+    inspection: document.getElementById('dr_inspection'),
+    warranty: document.getElementById('dr_warranty')
+  };
+  /* the bin dropdown offers the default list PLUS every bin already used by a
+     record, so an existing bin can never be silently dropped on save */
+  function refreshBinOptions(extra){
+    const set = new Set(BINS);
+    loadInventory().forEach(i => { if(i.bin) set.add(String(i.bin)); });
+    if(extra) set.add(String(extra));
+    const html = Array.from(set).sort().map(b => '<option>' + esc(b) + '</option>').join('');
+    [dr.bin, document.getElementById('d_bin')].forEach(sel => {
+      const cur = sel.value;
+      sel.innerHTML = html;
+      if(cur) sel.value = cur;
+    });
+  }
+  refreshBinOptions();
+
+  function currentRecord(){
+    return loadInventory().find(it => it.sku === selectedSku) || null;
+  }
+  function openDrawer(sku){
+    const it = loadInventory().find(r => r.sku === sku);
+    if(!it) return;
+    dr.sku.value = it.sku;
+    refreshBinOptions(it.bin);
+    dr.bin.value = it.bin || BINS[0];
+    dr.description.value = it.description || (it.product + ' — ' + it.category);
+    dr.supplier.value = it.supplier || '';
+    dr.qty.value = it.qty;
+    dr.reorder.value = it.reorder;
+    dr.inspection.value = it.inspection || '';
+    dr.warranty.value = it.warranty || '';
+    drawerImage = it.image || null;
+    document.getElementById('dr_image').value = '';
+    showImgPreview('dr_image_preview', 'dr_image_thumb', drawerImage);
+    document.getElementById('drawerTitle').textContent = it.sku + ' · ' + it.product;
+    drawer.classList.add('open');
+  }
+  function closeDrawer(){ drawer.classList.remove('open'); }
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  document.getElementById('btnBack').addEventListener('click', () => { closeDrawer(); showCollection(); renderTable(); });
+
+  async function saveRecordFrom(fields){
+    const rows = loadInventory();
+    const idx = rows.findIndex(r => r.sku === selectedSku);
+    if(idx === -1) return false;
+    const before = rows[idx];
+    const after = {
+      bin: fields.bin, description: fields.description,
+      supplier: fields.supplier, qty: Number(fields.qty),
+      reorder: Number(fields.reorder), inspection: fields.inspection,
+      warranty: fields.warranty
+    };
+    if(fields.image !== undefined) after.image = fields.image;
+    /* description is optional in MongoDB — fall back to a sensible default */
+    if(!String(after.description).trim()){
+      after.description = String(before.product || 'Record') + ' — ' + String(before.category || 'Other');
+    }
+
+    const changes = [];
+    if(String(before.bin) !== String(after.bin)) changes.push({ field:'Bin', from:before.bin, to:after.bin });
+    if(String(before.qty) !== String(after.qty)) changes.push({ field:'Quantity', from:before.qty, to:after.qty });
+    if(String(before.reorder) !== String(after.reorder)) changes.push({ field:'Reorder level', from:before.reorder, to:after.reorder });
+    if(String(before.supplier || '') !== String(after.supplier || '')) changes.push({ field:'Supplier', from:before.supplier || '—', to:after.supplier || '—' });
+    if(String(before.inspection || '') !== String(after.inspection || '')) changes.push({ field:'Last inspection', from:before.inspection || '—', to:after.inspection || '—' });
+
+    rows[idx] = Object.assign({}, before, after);
+    saveInventory(rows);
+
+    if(isOnline()){
+      const patch = {
+        bin:after.bin, description:after.description, supplier:after.supplier,
+        qty:after.qty, reorder:after.reorder,
+        inspection:after.inspection || null, warranty:after.warranty || null,
+        by: currentUser
+      };
+      if(fields.image !== undefined) patch.image = fields.image;
+      try{
+        await AP.updateItem(before.sku, patch);
+        const entries = changes.length
+          ? changes.map(c => ({ type:'edit', sku:before.sku, field:c.field, from:String(c.from), to:String(c.to),
+              by:currentUser, src:'Manual / Web', text:'[' + before.sku + '] record [' + c.field + '] value changed' }))
+          : [{ type:'edit', sku:before.sku, field:'—', by:currentUser, src:'Manual / Web',
+              text:'[' + before.sku + '] record opened and saved with no changes' }];
+        for(const en of entries) await AP.pushActivity(en);
+        await AP.refresh();
+      }catch(err){
+        toast(err.message); renderTable(); return false;
+      }
+    } else if(changes.length === 0){
+      logChange({ type:'edit', sku:before.sku, field:'—', text:'[' + before.sku + '] record opened and saved with no changes' });
+    } else {
+      changes.forEach(c => logChange({
+        type:'edit', sku:before.sku, field:c.field, from:c.from, to:c.to,
+        text:'[' + before.sku + '] record [' + c.field + '] value changed'
+      }));
+    }
+    renderTable();
+    toast('Saved ' + before.sku + (changes.length ? ' (' + changes.length + ' change' + (changes.length > 1 ? 's' : '') + ')' : ''));
+    return true;
+  }
+
+  function fieldsFromDrawer(){
+    return {
+      bin: dr.bin.value, description: dr.description.value, supplier: dr.supplier.value,
+      qty: dr.qty.value, reorder: dr.reorder.value,
+      inspection: dr.inspection.value, warranty: dr.warranty.value,
+      image: drawerImage
+    };
+  }
+  document.getElementById('btnDrawerSave').addEventListener('click', async () => {
+    /* guard: never let a closed drawer (empty fields) overwrite a record */
+    if(!drawer.classList.contains('open')){ toast('Open a record first.'); return; }
+    await saveRecordFrom(fieldsFromDrawer());
+  });
+  function autofill(){
+    const it = currentRecord(); if(!it) return;
+    if(!dr.description.value.trim()) dr.description.value = it.product + ' — ' + it.category;
+    if(!dr.supplier.value.trim()) dr.supplier.value = it.supplier || 'Unassigned';
+    if(!dr.inspection.value) dr.inspection.value = new Date(Date.now() - 21*86400000).toISOString().slice(0,10);
+    if(!dr.warranty.value) dr.warranty.value = new Date(Date.now() + 300*86400000).toISOString().slice(0,10);
+    toast('AI autofill suggested the missing fields.');
+  }
+  document.getElementById('dr_image').addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    try{
+      drawerImage = await readImageFile(f);
+      showImgPreview('dr_image_preview', 'dr_image_thumb', drawerImage);
+      toast('Image ready — press Save to store it on this record.');
+    }catch(err){ toast(err.message); }
+  });
+  document.getElementById('dr_image_clear').addEventListener('click', () => {
+    drawerImage = null;
+    document.getElementById('dr_image').value = '';
+    showImgPreview('dr_image_preview', 'dr_image_thumb', null);
+  });
+  document.getElementById('btnDrawerAutofill').addEventListener('click', autofill);
+  document.getElementById('btnDetailAutofill').addEventListener('click', autofill);
+
+  /* ============================================================
+     DETAIL VIEW
+     ============================================================ */
+  const d = {
+    description: document.getElementById('d_description'),
+    category: document.getElementById('d_category'),
+    bin: document.getElementById('d_bin'),
+    supplier: document.getElementById('d_supplier'),
+    qty: document.getElementById('d_qty'),
+    reorder: document.getElementById('d_reorder'),
+    inspection: document.getElementById('d_inspection'),
+    warranty: document.getElementById('d_warranty')
+  };
+
+  function openDetail(sku){
+    selectedSku = sku;
+    const it = loadInventory().find(r => r.sku === sku);
+    if(!it) return;
+    closeDrawer();
+
+    document.getElementById('crumbRecord').classList.remove('hidden');
+    document.getElementById('crumbRecordId').textContent = it.sku;
+    document.getElementById('detailTitle').textContent = it.sku + ' · ' + it.product;
+    document.getElementById('linkedFor').textContent = it.sku;
+    renderRecordMedia(it);
+
+    d.description.value = it.description || (it.product + ' — ' + it.category);
+    d.category.value = it.category;
+    refreshBinOptions(it.bin);
+    d.bin.value = it.bin || BINS[0];
+    d.supplier.value = it.supplier || '';
+    d.qty.value = it.qty;
+    d.reorder.value = it.reorder;
+    d.inspection.value = it.inspection || new Date(Date.now() - 21*86400000).toISOString().slice(0,10);
+    d.warranty.value = it.warranty || '';
+
+    const st = statusOf(it);
+    document.getElementById('sumQty').textContent = Number(it.qty).toLocaleString();
+    document.getElementById('sumReorder').textContent = Number(it.reorder).toLocaleString();
+    document.getElementById('sumStatus').innerHTML = '<span class="status-pill ' + statusClass(st) + '">' + st + '</span>';
+    document.getElementById('sumBin').textContent = it.bin;
+
+    document.getElementById('detailAttach').innerHTML = it.image
+      ? '<div class="attach-box"><img class="img-thumb" src="' + it.image + '" alt="stock photo" />' +
+        '<div><div class="nm">Stock photo</div><div class="sz">stored on this record in MongoDB</div></div>' +
+        '<button class="rm" type="button" id="btnDetailImgRm" title="Remove photo">×</button></div>'
+      : '<div class="attach-box" style="justify-content:center; color:var(--steel); font-size:0.84rem;">No photo on this record — use Upload photo above.</div>';
+    const rm = document.getElementById('btnDetailImgRm');
+    if(rm) rm.addEventListener('click', () => setItemImage(it.sku, null));
+
+    document.getElementById('linkedBody').innerHTML =
+      '<div class="fld"><label>Supplier record</label><input type="text" readonly value="' + esc(it.supplier || 'Not linked') + '" /></div>' +
+      '<div class="fld"><label>Storage location</label><input type="text" readonly value="' + esc(it.bin) + '" /></div>' +
+      '<div class="fld"><label>Category</label><input type="text" readonly value="' + esc(it.category) + '" /></div>' +
+      '<div class="fld"><label>Managed by</label><input type="text" readonly value="' + esc(currentUser) + '" /></div>';
+
+    renderActivity(document.getElementById('activityBody'), { sku: it.sku });
+    switchDetailTab('record');
+
+    collectionView.classList.add('hidden');
+    activityView.classList.add('hidden');
+    detailView.classList.remove('hidden');
+    document.getElementById('content').scrollTop = 0;
+  }
+
+  /* the record tab shows the uploaded stock photo, with add / replace / remove */
+  function renderRecordMedia(it){
+    const box = document.getElementById('recordMedia');
+    if(!box) return;
+    if(it.image){
+      box.innerHTML =
+        '<img src="' + it.image + '" alt="' + esc(it.product) + ' stock image" />' +
+        '<div class="media-actions">' +
+          '<button class="mini-btn" type="button" id="mediaUpload">Replace image</button>' +
+          '<button class="mini-btn danger" type="button" id="mediaRemove">Remove image</button>' +
+        '</div>';
+    } else {
+      box.innerHTML =
+        '<div class="glyph">' + glyphOf(it) + '</div>' +
+        '<div class="hint">No stock image yet for ' + esc(it.sku) + '.</div>' +
+        '<div class="media-actions"><button class="mini-btn" type="button" id="mediaUpload">Add stock image</button></div>';
+    }
+  }
+  document.getElementById('recordMedia').addEventListener('click', (e) => {
+    if(e.target.closest('#mediaUpload')) document.getElementById('detailImageInput').click();
+    if(e.target.closest('#mediaRemove')) setItemImage(selectedSku, null);
+  });
+  document.getElementById('detailImageInput').addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!f) return;
+    try{
+      const data = await readImageFile(f);
+      await setItemImage(selectedSku, data);
+    }catch(err){ toast(err.message); }
+  });
+
+  document.getElementById('btnFullDetails').addEventListener('click', () => {
+    if(selectedSku) openDetail(selectedSku);
+  });
+  document.getElementById('btnDetailCancel').addEventListener('click', () => { showCollection(); renderTable(); });
+  document.getElementById('btnDetailSave').addEventListener('click', async () => {
+    const ok = await saveRecordFrom({
+      bin: d.bin.value, description: d.description.value, supplier: d.supplier.value,
+      qty: d.qty.value, reorder: d.reorder.value,
+      inspection: d.inspection.value, warranty: d.warranty.value
+    });
+    if(ok){ openDetail(selectedSku); }
+  });
+  document.getElementById('btnDetailDelete').addEventListener('click', () => deleteRecord(selectedSku));
+
+  function switchDetailTab(name){
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    ['record','activity','linked'].forEach(n => {
+      document.getElementById('tab-' + n).classList.toggle('hidden', n !== name);
+    });
+  }
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => switchDetailTab(tab.dataset.tab));
+  });
+
+  /* ============================================================
+     ACTIVITY
+     ============================================================ */
+  function skuOf(entry){
+    if(entry && entry.sku) return entry.sku;
+    const m = /\[(SKU-\d+)\]/.exec(String((entry && entry.text) || ''));
+    return m ? m[1] : '';
+  }
+  function summaryHTML(entry){
+    const pill = (s) => '<span class="pill-soft">' + esc(s) + '</span>';
+    const sku = skuOf(entry);
+    if(entry.type === 'create'){
+      return '<span class="act-tag create">record added</span> ' + pill(sku) + ' in [Inventory]';
+    }
+    if(entry.type === 'delete'){
+      return '<span class="act-tag delete">record deleted</span> ' + pill(sku) + ' in [Inventory]';
+    }
+    if(entry.type === 'auto'){
+      return esc(entry.text || 'Automation task completed') + ' <span class="act-link">View details</span>';
+    }
+    if(entry.field && entry.field !== '—'){
+      return '[' + esc(sku) + '] record [<b>' + esc(entry.field) + '</b>] value changed from ' +
+             '<span class="val-old">' + esc(entry.from) + '</span> to ' +
+             '<span class="val-new">' + esc(entry.to) + '</span> in [Inventory]';
+    }
+    return '[' + esc(sku) + '] record saved in [Inventory]';
+  }
+
+  function renderActivity(tbody, opts){
+    opts = opts || {};
+    let list = loadActivity();
+    if(opts.sku){
+      const own = list.filter(a => skuOf(a) === opts.sku);
+      list = own.length ? own : list.slice(0, 6);
+    }
+    const countEl = (tbody.id === 'activityBody') ? document.getElementById('actCount') : document.getElementById('gActCount');
+    if(countEl) countEl.textContent = list.length;
+
+    tbody.innerHTML = list.map(a => (
+      '<tr>' +
+        '<td>' + esc(fmtStamp(a.at)) + '</td>' +
+        '<td><div class="who"><span class="av">' + esc(initials(a.by)) + '</span>' +
+          '<div><div class="nm">' + esc(a.by) + '</div><div class="src">' + esc(a.src) + '</div></div></div></td>' +
+        '<td><div class="sum">' + summaryHTML(a) + (a.type === 'create' ? ' <span class="act-link">Import history</span>' : '') + '</div></td>' +
+      '</tr>'
+    )).join('');
+  }
+  function showActivity(){
+    renderActivity(document.getElementById('globalActivityBody'), {});
+    collectionView.classList.add('hidden');
+    detailView.classList.add('hidden');
+    movementsView.classList.add('hidden');
+    activityView.classList.remove('hidden');
+    setRailActive('railActivity');
+    document.getElementById('crumbName').textContent = 'Latest changes';
+    document.getElementById('content').scrollTop = 0;
+    closeDrawer();
+  }
+  document.getElementById('btnActivity').addEventListener('click', showActivity);
+
+  /* ============================================================
+     STOCK IMAGES + DELETE
+     ============================================================ */
+  let createImage = null;
+  let drawerImage = null;
+
+  function readImageFile(file){
+    if(window.AP && AP.readImage) return AP.readImage(file);
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = () => reject(new Error('Could not read that file.'));
+      fr.readAsDataURL(file);
+    });
+  }
+  function showImgPreview(wrapId, imgId, dataUrl){
+    const wrap = document.getElementById(wrapId), img = document.getElementById(imgId);
+    if(!wrap || !img) return;
+    if(dataUrl){ img.src = dataUrl; wrap.classList.remove('hidden'); }
+    else { img.removeAttribute('src'); wrap.classList.add('hidden'); }
+  }
+
+  /* saves a stock photo onto a record (MongoDB when online) */
+  async function setItemImage(sku, dataUrl){
+    const rows = loadInventory();
+    const idx = rows.findIndex(r => r.sku === sku);
+    if(idx === -1) return;
+    rows[idx] = Object.assign({}, rows[idx], { image: dataUrl || null });
+    saveInventory(rows);
+
+    if(isOnline()){
+      try{
+        await AP.updateItem(sku, { image: dataUrl || null });
+        await AP.pushActivity({ type:'edit', sku, by:currentUser, src:'Manual / Web', field:'Image',
+          from: dataUrl ? 'none' : 'image', to: dataUrl ? 'image' : 'none',
+          text:'[' + sku + '] stock image ' + (dataUrl ? 'uploaded' : 'removed') });
+        await AP.refresh();
+      }catch(err){ toast(err.message); return; }
+    } else {
+      logChange({ type:'edit', sku, field:'Image', from:'—', to: dataUrl ? 'added' : 'removed',
+        text:'[' + sku + '] stock image ' + (dataUrl ? 'uploaded' : 'removed') });
+    }
+    toast(dataUrl ? 'Stock image saved for ' + sku + '.' : 'Stock image removed from ' + sku + '.');
+    renderTable();
+    if(!detailView.classList.contains('hidden')) openDetail(sku);
+    if(drawer.classList.contains('open')) openDrawer(sku);
+  }
+
+  /* deletes a stock record from MongoDB (and the local cache) */
+  async function deleteRecord(sku){
+    if(!sku) return;
+    const it = loadInventory().find(r => r.sku === sku);
+    if(!window.confirm('Delete ' + sku + (it ? ' — ' + it.product : '') + '?\nThis removes the record from MongoDB and cannot be undone.')) return;
+
+    if(isOnline()){
+      try{
+        await AP.deleteItem(sku, currentUser);
+        await AP.refresh();
+      }catch(err){ toast(err.message); return; }
+    } else {
+      saveInventory(loadInventory().filter(r => r.sku !== sku));
+      logChange({ type:'delete', sku, text:'[' + sku + '] record deleted in [Inventory]' });
+    }
+    if(selectedSku === sku) selectedSku = null;
+    closeDrawer();
+    showCollection();
+    renderTable();
+    toast('Deleted ' + sku + '.');
+  }
+
+  /* ============================================================
+     CREATE
+     ============================================================ */
+  const createOverlay = document.getElementById('createOverlay');
+  const createMsg = document.getElementById('createMsg');
+  function openCreate(){
+    ['c_product','c_bin','c_supplier'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('c_qty').value = 0;
+    document.getElementById('c_reorder').value = 0;
+    createImage = null;
+    document.getElementById('c_image').value = '';
+    showImgPreview('c_image_preview', 'c_image_thumb', null);
+    createMsg.classList.remove('show'); createMsg.textContent = '';
+    createOverlay.classList.add('show');
+    document.getElementById('c_product').focus();
+  }
+  document.getElementById('btnCreate').addEventListener('click', openCreate);
+  document.getElementById('btnAdd').addEventListener('click', openCreate);
+  document.getElementById('createCancel').addEventListener('click', () => createOverlay.classList.remove('show'));
+  createOverlay.addEventListener('click', (e) => { if(e.target === createOverlay) createOverlay.classList.remove('show'); });
+  document.getElementById('c_image').addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    try{
+      createImage = await readImageFile(f);
+      showImgPreview('c_image_preview', 'c_image_thumb', createImage);
+    }catch(err){
+      createMsg.textContent = err.message; createMsg.classList.add('show');
+    }
+  });
+  document.getElementById('c_image_clear').addEventListener('click', () => {
+    createImage = null;
+    document.getElementById('c_image').value = '';
+    showImgPreview('c_image_preview', 'c_image_thumb', null);
+  });
+
+  document.getElementById('createSave').addEventListener('click', async () => {
+    const product = document.getElementById('c_product').value.trim();
+    if(!product){ createMsg.textContent = 'Product name is required.'; createMsg.classList.add('show'); return; }
+
+    const rows = loadInventory();
+    let max = 1000;
+    rows.forEach(r => { const m = /^SKU-(\d+)$/.exec(r.sku || ''); if(m) max = Math.max(max, parseInt(m[1], 10)); });
+    const sku = 'SKU-' + String(max + 1);
+    const rec = {
+      sku,
+      product,
+      category: document.getElementById('c_category').value,
+      bin: document.getElementById('c_bin').value.trim() || 'A-12',
+      supplier: document.getElementById('c_supplier').value.trim() || 'Unassigned',
+      qty: Number(document.getElementById('c_qty').value) || 0,
+      reorder: Number(document.getElementById('c_reorder').value) || 0,
+      image: createImage || null,
+      company: companyName,
+      ownerUsername: session.username,
+      adminUsername: myAdmin
+    };
+    if(!BINS.includes(rec.bin)) BINS.push(rec.bin);
+
+    if(isOnline()){
+      const btn = document.getElementById('createSave');
+      btn.disabled = true;
+      try{
+        await AP.createItem(Object.assign({}, rec, { by: currentUser }));
+        await AP.refresh();
+      }catch(err){
+        btn.disabled = false;
+        createMsg.textContent = err.message; createMsg.classList.add('show');
+        return;
+      }
+      btn.disabled = false;
+    } else {
+      rows.push(rec);
+      saveInventory(rows);
+      logChange({ type:'create', sku, text:'[' + sku + '] record added in [Inventory]' });
+    }
+
+    createOverlay.classList.remove('show');
+    activeCollectionId = 'inventory'; activeViewId = null; syncNavActive();
+    showCollection(); renderTable();
+    toast('Created ' + sku + ' — ' + product + (isOnline() ? ' in MongoDB' : ' (offline)'));
+  });
+
+  /* ============================================================
+     STOCK MOVEMENTS — stock coming in (truck ETA) / going out
+     ============================================================ */
+  const incomingBody = document.getElementById('incomingBody');
+  const outgoingBody = document.getElementById('outgoingBody');
+  const moveOverlay = document.getElementById('moveOverlay');
+  const moveMsg = document.getElementById('moveMsg');
+  let moveType = 'in';
+
+  function showMovements(){
+    collectionView.classList.add('hidden');
+    detailView.classList.add('hidden');
+    activityView.classList.add('hidden');
+    movementsView.classList.remove('hidden');
+    document.getElementById('crumbRecord').classList.add('hidden');
+    document.getElementById('crumbName').textContent = 'Stock movements';
+    document.getElementById('tabChipName').textContent = 'Stock in / out';
+    closeDrawer();
+    setRailActive('railForms');
+    renderMovements();
+    document.getElementById('content').scrollTop = 0;
+  }
+
+  function statusPill(status){
+    const s = String(status || '—');
+    const cls = /arriv|receiv|deliver|complete|dispatch/i.test(s) ? 'st-ok'
+              : /transit|unload|pack|schedul/i.test(s) ? 'st-warn' : 'st-info';
+    return '<span class="status-pill ' + cls + '">' + esc(s) + '</span>';
+  }
+
+  function renderMovements(){
+    if(!incomingBody || !outgoingBody) return;
+    const list = loadMovements();
+    const incoming = list.filter(m => m.type === 'in')
+      .sort((a, b) => new Date(a.eta || 0) - new Date(b.eta || 0));
+    const outgoing = list.filter(m => m.type === 'out')
+      .sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
+
+    document.getElementById('inCount').textContent = incoming.length + ' incoming';
+    document.getElementById('outCount').textContent = outgoing.length + ' outgoing';
+    document.getElementById('incomingEmpty').classList.toggle('hidden', incoming.length > 0);
+    document.getElementById('outgoingEmpty').classList.toggle('hidden', outgoing.length > 0);
+
+    incomingBody.innerHTML = incoming.map(m => (
+      '<tr>' +
+        '<td><b class="mono">' + esc(m.sku) + '</b><div class="eta-clock">' + esc(m.product || '') + '</div></td>' +
+        '<td><b>' + Number(m.qty).toLocaleString() + '</b></td>' +
+        '<td>' + esc(m.party || '—') + '</td>' +
+        '<td><div class="eta-cell">' +
+          '<span class="status-pill ' + AP.etaBadgeClass(m.eta) + '">' + esc(AP.etaText(m.eta)) + '</span>' +
+          '<span class="eta-clock">Truck arrives ' + esc(AP.etaClock(m.eta)) + '</span>' +
+        '</div></td>' +
+        '<td><div class="eta-cell"><span>' + esc(m.vehicle || '—') + '</span>' +
+          '<span class="eta-clock">' + esc(m.driver || '') + '</span></div></td>' +
+        '<td>' + statusPill(m.status) + '</td>' +
+        '<td><div class="row-actions" style="justify-content:flex-end;">' +
+          '<button class="mini-btn danger" data-mdel="' + esc(m._id) + '">Delete</button></div></td>' +
+      '</tr>'
+    )).join('');
+
+    outgoingBody.innerHTML = outgoing.map(m => (
+      '<tr>' +
+        '<td><b class="mono">' + esc(m.sku) + '</b><div class="eta-clock">' + esc(m.product || '') + '</div></td>' +
+        '<td><b>' + Number(m.qty).toLocaleString() + '</b></td>' +
+        '<td>' + esc(m.party || '—') + '</td>' +
+        '<td class="mono">' + esc(m.ref || '—') + '</td>' +
+        '<td>' + statusPill(m.status) + '</td>' +
+        '<td><span class="eta-clock">' + esc(fmtStamp(m.at)) + '</span></td>' +
+        '<td><div class="row-actions" style="justify-content:flex-end;">' +
+          '<button class="mini-btn danger" data-mdel="' + esc(m._id) + '">Delete</button></div></td>' +
+      '</tr>'
+    )).join('');
+  }
+
+  async function deleteMovement(id){
+    if(!id) return;
+    if(!window.confirm('Delete this movement record?')) return;
+    if(isOnline()){
+      try{ await AP.deleteMovement(id); await AP.refresh(); }
+      catch(err){ toast(err.message); return; }
+    } else {
+      saveMovements(loadMovements().filter(m => String(m._id) !== String(id)));
+    }
+    renderMovements();
+    toast('Movement deleted.');
+  }
+  [incomingBody, outgoingBody].forEach(tb => tb.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-mdel]');
+    if(btn) deleteMovement(btn.dataset.mdel);
+  }));
+
+  /* -------- record-movement modal -------- */
+  function localDateTimeValue(dt){
+    const pad = (n) => String(n).padStart(2, '0');
+    return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()) +
+           'T' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+  }
+  function fillSkuOptions(){
+    const sel = document.getElementById('mv_sku');
+    const items = loadInventory();
+    sel.innerHTML = items.map(it =>
+      '<option value="' + esc(it.sku) + '" data-product="' + esc(it.product) + '" data-supplier="' + esc(it.supplier || '') + '">' +
+        esc(it.sku) + ' — ' + esc(it.product) + ' (qty ' + Number(it.qty).toLocaleString() + ')' +
+      '</option>').join('');
+  }
+  function paintMoveType(){
+    document.getElementById('typeIn').classList.toggle('sel', moveType === 'in');
+    document.getElementById('typeOut').classList.toggle('sel', moveType === 'out');
+    const isIn = moveType === 'in';
+    ['mv_eta_fld','mv_status_fld','mv_vehicle_fld','mv_driver_fld'].forEach(id => {
+      document.getElementById(id).classList.toggle('hidden', !isIn);
+    });
+    document.getElementById('mv_party_label').textContent = isIn ? 'Supplier' : 'Store / destination';
+    document.getElementById('mv_party').placeholder = isIn ? 'e.g. your supplier name' : 'e.g. store you are sending to';
+    document.getElementById('moveTitle').textContent = isIn ? 'Stock coming in' : 'Stock going out';
+    document.getElementById('moveSub').textContent = isIn
+      ? 'Record an inbound truck delivery together with its arrival ETA.'
+      : 'Dispatch stock from the warehouse to a store. Stock is deducted immediately.';
+  }
+  function openMovement(type){
+    moveType = (type === 'out') ? 'out' : 'in';
+    fillSkuOptions();
+    document.getElementById('mv_qty').value = 1;
+    document.getElementById('mv_party').value = '';
+    document.getElementById('mv_ref').value = '';
+    document.getElementById('mv_notes').value = '';
+    document.getElementById('mv_vehicle').value = '';
+    document.getElementById('mv_driver').value = '';
+    document.getElementById('mv_eta').value = localDateTimeValue(new Date(Date.now() + 4 * 3600000));
+    document.getElementById('mv_status').innerHTML = moveType === 'in'
+      ? '<option>In Transit</option><option>Scheduled</option><option>At gate</option><option>Unloading</option>'
+      : '<option>Packed</option><option>Dispatched</option><option>Delivered</option>';
+    moveMsg.classList.remove('show'); moveMsg.textContent = '';
+    paintMoveType();
+    moveOverlay.classList.add('show');
+    document.getElementById('mv_qty').focus();
+  }
+  document.getElementById('typeIn').addEventListener('click', () => { moveType = 'in'; paintMoveType(); });
+  document.getElementById('typeOut').addEventListener('click', () => { moveType = 'out'; paintMoveType(); });
+  document.getElementById('btnNewIn').addEventListener('click', () => openMovement('in'));
+  document.getElementById('btnNewOut').addEventListener('click', () => openMovement('out'));
+  document.getElementById('moveCancel').addEventListener('click', () => moveOverlay.classList.remove('show'));
+  moveOverlay.addEventListener('click', (e) => { if(e.target === moveOverlay) moveOverlay.classList.remove('show'); });
+
+  document.getElementById('moveSave').addEventListener('click', async () => {
+    const skuSel = document.getElementById('mv_sku');
+    const sku = skuSel.value;
+    if(!sku){ moveMsg.textContent = 'No stock items yet — add a product first.'; moveMsg.classList.add('show'); return; }
+    const qty = Number(document.getElementById('mv_qty').value);
+    if(!qty || qty <= 0){ moveMsg.textContent = 'Quantity must be greater than zero.'; moveMsg.classList.add('show'); return; }
+    const opt = skuSel.options[skuSel.selectedIndex];
+    const etaVal = document.getElementById('mv_eta').value;
+    if(moveType === 'in' && !etaVal){ moveMsg.textContent = 'Please give the truck arrival ETA.'; moveMsg.classList.add('show'); return; }
+
+    const payload = {
+      type: moveType, sku, qty,
+      product: opt ? opt.dataset.product : '',
+      party: document.getElementById('mv_party').value.trim() ||
+             (moveType === 'in' ? (opt ? opt.dataset.supplier : '') : 'Store'),
+      ref: document.getElementById('mv_ref').value.trim(),
+      notes: document.getElementById('mv_notes').value.trim(),
+      status: document.getElementById('mv_status').value,
+      eta: moveType === 'in' ? new Date(etaVal).toISOString() : null,
+      vehicle: moveType === 'in' ? document.getElementById('mv_vehicle').value.trim() : '',
+      driver: moveType === 'in' ? document.getElementById('mv_driver').value.trim() : '',
+      by: currentUser
+    };
+
+    if(isOnline()){
+      const btn = document.getElementById('moveSave');
+      btn.disabled = true;
+      try{ await AP.addMovement(payload); await AP.refresh(); }
+      catch(err){ btn.disabled = false; moveMsg.textContent = err.message; moveMsg.classList.add('show'); return; }
+      btn.disabled = false;
+    } else {
+      const list = loadMovements();
+      list.unshift(Object.assign({ _id:'local-' + Date.now(), at:new Date().toISOString() }, payload));
+      saveMovements(list);
+      if(moveType === 'out'){
+        const rows = loadInventory();
+        const i = rows.findIndex(r => r.sku === sku);
+        if(i > -1){ rows[i] = Object.assign({}, rows[i], { qty: Math.max(0, Number(rows[i].qty) - qty) }); saveInventory(rows); }
+      }
+      logChange({ type:'edit', sku, field: moveType === 'in' ? 'Incoming' : 'Outgoing', from:'—', to:String(qty),
+        text:'[' + sku + '] stock ' + (moveType === 'in' ? 'in' : 'out') + ' ' + qty + ' ' +
+             (moveType === 'in' ? 'from ' + payload.party : 'to ' + payload.party) });
+    }
+
+    moveOverlay.classList.remove('show');
+    renderMovements();
+    renderTable();
+    toast((moveType === 'in'
+      ? 'Incoming recorded — truck ' + AP.etaText(payload.eta)
+      : 'Dispatched ' + qty + ' to ' + payload.party) + (isOnline() ? '' : ' (offline)'));
+  });
+
+  /* ============================================================
+     INIT
+     ============================================================ */
+  showCollection();
+  renderTable();
+  renderActivity(document.getElementById('globalActivityBody'), {});
+  renderMovements();
+
+  /* when the MongoDB snapshot arrives, repaint with the live records */
+  if(window.AP){
+    AP.ready.then((online) => {
+      /* the account may have been deleted (or the database reset) since the
+         session was saved — send the visitor back to the login page */
+      if(online && !myAccount().username){
+        try{ localStorage.removeItem(SESSION_KEY); }catch(_){}
+        window.location.replace('panda-login.html');
+        return;
+      }
+      renderTable();
+      renderMovements();
+      renderActivity(document.getElementById('globalActivityBody'), {});
+      toast(online
+        ? 'MongoDB connected — ' + loadInventory().length + ' stock records, ' + loadMovements().length + ' movements.'
+        : 'Server offline — showing browser data. Run "npm start" for MongoDB.');
+    });
+  }
+  /* keep the truck ETA countdown fresh */
+  setInterval(() => { if(!movementsView.classList.contains('hidden')) renderMovements(); }, 60000);
+</script>
+</body>
+</html>

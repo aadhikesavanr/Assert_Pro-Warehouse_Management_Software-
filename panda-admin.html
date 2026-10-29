@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Console — AssertPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14231A; --blue:#1F7A4D; --blue-dark:#145C38; --teal:#2FA36B; --orange:#E07A2F;
+    --ink:#182019; --steel:#5D6B62; --paper:#FFFFFF; --paper-2:#F4F7F4; --line:#E2E8E2;
+    --ok:#0F7A56; --ok-bg:#E4F7F0; --danger:#C0392B; --danger-bg:#FBE7E5; --warn:#B06318; --warn-bg:#FBEEE0;
+    --info:#1A5C99; --info-bg:#E4EEF9;
+  }
+  html[data-theme="dark"]{
+    --navy:#DCEBDD; --blue:#5CC98C; --blue-dark:#7FD8A6; --teal:#4FD69B; --orange:#FFA05C;
+    --ink:#E6EFE7; --steel:#A3B2A6; --paper:#12181A; --paper-2:#1A221E; --line:#27332B;
+    --ok:#51D39A; --ok-bg:#0F2F23; --danger:#FF6F5E; --danger-bg:#3B1D1B; --warn:#FFB867; --warn-bg:#3B2A16;
+    --info:#7EB8EE; --info-bg:#102944;
+    color-scheme:dark;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--paper-2); line-height:1.55; }
+  h1,h2,h3,h4,.brand{ font-family:'Manrope',sans-serif; }
+  a{ color:inherit; text-decoration:none; }
+  :focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  .wrap{ max-width:1240px; margin:0 auto; padding:0 26px; }
+
+  header{ position:sticky; top:0; z-index:40; background:var(--paper); border-bottom:1px solid var(--line); }
+  .nav{ display:flex; align-items:center; gap:14px; padding:13px 0; flex-wrap:wrap; }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.02rem; color:var(--navy); margin-right:auto; }
+  .brand .mark{ width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg,var(--blue),var(--teal)); display:grid; place-items:center; color:#fff; font-size:1.05rem; }
+  .nav-tag{ font-size:0.68rem; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; background:var(--ok-bg); color:var(--ok); padding:3px 9px; border-radius:999px; }
+  .user-chip{ display:flex; align-items:center; gap:9px; background:var(--paper-2); border:1px solid var(--line); border-radius:999px; padding:6px 13px 6px 6px; font-size:0.82rem; font-weight:600; }
+  .user-chip .avatar{ width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--teal)); color:#fff; display:grid; place-items:center; font-weight:800; font-size:0.78rem; }
+  .user-chip .role-small{ font-size:0.66rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--steel); font-weight:800; }
+  .icon-btn{ display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:8px; background:var(--paper-2); border:1px solid var(--line); color:var(--navy); cursor:pointer; }
+  .icon-btn:hover{ border-color:var(--blue); color:var(--blue); }
+  .icon-btn svg{ width:18px; height:18px; stroke-width:2; }
+  html[data-theme="dark"] .icon-btn{ background:#1C2521; border-color:#2C372F; }
+  .btn-logout{ background:transparent; border:1.5px solid var(--line); color:var(--navy); padding:9px 16px; border-radius:8px; font-weight:700; font-size:0.84rem; cursor:pointer; }
+  .btn-logout:hover{ border-color:var(--danger); color:var(--danger); }
+
+  .page-head{ padding:28px 0 6px; }
+  .page-head h1{ margin:0 0 4px; font-size:1.5rem; color:var(--navy); }
+  .page-head p{ margin:0; color:var(--steel); font-size:0.9rem; }
+
+  .stat-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin:22px 0 26px; }
+  .stat-card{ background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+  .stat-card .k{ font-size:0.74rem; font-weight:700; color:var(--steel); text-transform:uppercase; letter-spacing:0.05em; }
+  .stat-card .v{ font-family:'Manrope',sans-serif; font-weight:800; font-size:1.65rem; color:var(--navy); line-height:1.2; }
+  .stat-card.warn .v{ color:var(--warn); }
+  .stat-card.danger .v{ color:var(--danger); }
+  .stat-card.ok .v{ color:var(--ok); }
+
+  .tabs{ display:flex; gap:6px; border-bottom:1px solid var(--line); margin-bottom:22px; flex-wrap:wrap; }
+  .tab{ padding:11px 18px; font-family:'Inter',sans-serif; font-weight:700; font-size:0.86rem; color:var(--steel); background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; }
+  .tab:hover{ color:var(--navy); }
+  .tab.active{ color:var(--blue); border-bottom-color:var(--blue); }
+
+  .panel{ background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:20px 22px 22px; margin-bottom:30px; }
+  .panel-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+  .panel-head h3{ margin:0 0 3px; font-size:1.1rem; color:var(--navy); }
+  .panel-head .sub{ font-size:0.82rem; color:var(--steel); }
+
+  .toolbar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .toolbar input, .toolbar select{ padding:10px 13px; border:1px solid var(--line); border-radius:8px; background:var(--paper-2); color:var(--ink); font-size:0.86rem; font-family:'Inter',sans-serif; }
+  .toolbar input{ flex:1; min-width:200px; }
+  .toolbar input:focus, .toolbar select:focus{ outline:2px solid var(--blue); outline-offset:0; border-color:transparent; }
+
+  .btn-add{ background:linear-gradient(135deg,var(--blue),var(--teal)); color:#fff; border:none; padding:11px 18px; border-radius:8px; font-weight:700; font-size:0.86rem; cursor:pointer; display:inline-flex; align-items:center; gap:7px; }
+  .btn-add:hover{ filter:brightness(1.06); }
+  .btn-add svg{ width:16px; height:16px; stroke-width:2.4; }
+
+  .table-wrap{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; font-size:0.87rem; }
+  thead th{ text-align:left; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--steel); padding:10px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  tbody td{ padding:12px 10px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:var(--paper-2); }
+  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.83rem; }
+
+  .role-badge{ display:inline-flex; align-items:center; gap:6px; font-size:0.72rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; padding:3px 10px; border-radius:999px; }
+  .role-badge.admin{ background:rgba(31,122,77,0.14); color:var(--blue); }
+  .role-badge.user{ background:rgba(93,107,98,0.16); color:var(--steel); }
+  .status-pill{ display:inline-flex; align-items:center; gap:6px; font-size:0.73rem; font-weight:700; padding:3px 10px; border-radius:999px; }
+  .status-pill .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
+  .st-ok{ background:var(--ok-bg); color:var(--ok); }
+  .st-warn{ background:var(--warn-bg); color:var(--warn); }
+  .st-danger{ background:var(--danger-bg); color:var(--danger); }
+  .st-info{ background:var(--info-bg); color:var(--info); }
+
+  .row-actions{ display:flex; gap:7px; justify-content:flex-end; }
+  .mini-btn{ border:1px solid var(--line); background:var(--paper); color:var(--steel); border-radius:7px; padding:6px 11px; font-size:0.78rem; font-weight:700; cursor:pointer; }
+  .mini-btn:hover{ border-color:var(--blue); color:var(--blue); }
+  .mini-btn.danger:hover{ border-color:var(--danger); color:var(--danger); }
+  .self-tag{ font-size:0.7rem; color:var(--steel); font-weight:600; }
+
+  .empty{ text-align:center; padding:34px 14px; color:var(--steel); font-size:0.88rem; }
+
+  /* modal */
+  .overlay{ position:fixed; inset:0; background:rgba(20,35,26,0.5); display:none; align-items:center; justify-content:center; z-index:60; padding:20px; }
+  .overlay.show{ display:flex; }
+  html[data-theme="dark"] .overlay{ background:rgba(5,9,7,0.7); }
+  .modal{ background:var(--paper); border:1px solid var(--line); border-radius:14px; width:100%; max-width:440px; padding:22px 22px 20px; box-shadow:0 30px 70px rgba(0,0,0,0.35); }
+  .modal h3{ margin:0 0 4px; font-size:1.12rem; color:var(--navy); }
+  .modal .sub{ font-size:0.82rem; color:var(--steel); margin:0 0 16px; }
+  .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:13px; }
+  .field label{ font-size:0.79rem; font-weight:600; color:var(--steel); }
+  .field input, .field select{ padding:11px 13px; border:1px solid var(--line); border-radius:8px; background:var(--paper-2); color:var(--ink); font-size:0.88rem; font-family:'Inter',sans-serif; }
+  .field input:focus, .field select:focus{ outline:2px solid var(--blue); outline-offset:0; border-color:transparent; }
+  .modal-actions{ display:flex; gap:10px; margin-top:8px; }
+  .modal-actions .btn-cancel{ flex:1; border:1.5px solid var(--line); background:transparent; color:var(--steel); border-radius:8px; padding:11px; font-weight:700; font-size:0.86rem; cursor:pointer; }
+  .modal-actions .btn-save{ flex:1; background:var(--teal); color:#fff; border:none; border-radius:8px; padding:11px; font-weight:700; font-size:0.86rem; cursor:pointer; }
+  .form-msg{ font-size:0.8rem; font-weight:600; padding:9px 12px; border-radius:7px; margin-bottom:12px; display:none; }
+  .form-msg.show{ display:block; }
+  .form-msg.err{ background:var(--danger-bg); color:var(--danger); }
+
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--navy); color:var(--paper); padding:12px 20px; border-radius:9px; font-size:0.86rem; font-weight:600; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:80; }
+  html[data-theme="dark"] .toast{ background:#22302A; color:var(--ink); }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---- stock movements ---- */
+  .eta-cell{ display:flex; flex-direction:column; gap:1px; }
+  .eta-clock{ font-size:0.73rem; color:var(--steel); }
+  .thumb-img{ width:38px; height:30px; object-fit:cover; border-radius:6px; border:1px solid var(--line); display:block; }
+  .row-actions{ display:flex; gap:7px; justify-content:flex-end; }
+
+  /* ---- company hierarchy drill-down ---- */
+  .company-card{ display:flex; align-items:center; gap:14px; background:var(--paper-2); border:1px solid var(--line); border-radius:12px; padding:16px 18px; cursor:pointer; margin-bottom:12px; transition:border-color .15s, transform .05s; }
+  .company-card:hover{ border-color:var(--blue); }
+  .company-card:active{ transform:translateY(1px); }
+  .company-card .cc-icon{ width:42px; height:42px; border-radius:10px; background:linear-gradient(135deg,var(--blue),var(--teal)); color:#fff; display:grid; place-items:center; font-weight:800; font-size:1.02rem; flex:none; }
+  .company-card .cc-name{ font-weight:800; font-size:1rem; color:var(--navy); }
+  .company-card .cc-meta{ font-size:0.8rem; color:var(--steel); }
+  .company-card .cc-go{ margin-left:auto; color:var(--steel); font-weight:700; font-size:0.82rem; }
+  .crumb-line{ font-size:0.82rem; color:var(--steel); margin-bottom:14px; }
+  .crumb-line b{ color:var(--ink); }
+  .meta-pill{ display:inline-block; background:var(--paper-2); border:1px solid var(--line); border-radius:999px; padding:3px 10px; font-size:0.74rem; font-weight:700; color:var(--steel); margin-right:6px; }
+
+  .hidden{ display:none !important; }
+  @media (max-width:980px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <span class="mark">A</span>
+      AssertPro
+      <span class="nav-tag">Admin Console</span>
+    </div>
+    <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    </button>
+    <div class="user-chip">
+      <span class="avatar" id="avatarInitial">A</span>
+      <span>
+        <span id="chipName" style="display:block;">Admin</span>
+        <span class="role-small">Admin</span>
+      </span>
+    </div>
+    <button class="btn-logout" id="btnLogout" type="button">Log Out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-head">
+    <h1>Admin Dashboard</h1>
+    <p>Welcome back, <span id="welcomeName">Admin</span> — you have full access to warehouse stock and every user account.</p>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="k">Total SKUs</div><div class="v" id="statTotalSkus">0</div></div>
+    <div class="stat-card ok"><div class="k">Units in Stock</div><div class="v" id="statUnits">0</div></div>
+    <div class="stat-card warn"><div class="k">Low Stock</div><div class="v" id="statLow">0</div></div>
+    <div class="stat-card danger"><div class="k">Out of Stock</div><div class="v" id="statOut">0</div></div>
+    <div class="stat-card"><div class="k">Registered Users</div><div class="v" id="statUsers">0</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="users" type="button">Users</button>
+    <button class="tab" data-tab="inventory" type="button">Inventory</button>
+    <button class="tab" data-tab="stockin" type="button">Stock In (coming)</button>
+    <button class="tab" data-tab="stockout" type="button">Stock Out (stores)</button>
+    <button class="tab" data-tab="company" type="button">Company</button>
+  </div>
+
+  <!-- ================= USERS ================= -->
+  <section class="panel" id="panel-users">
+    <div class="panel-head">
+      <div>
+        <h3>All Users</h3>
+        <div class="sub">Every account registered in the warehouse system. Admins can create, edit roles, and remove users.</div>
+      </div>
+      <button class="btn-add" id="btnAddUser" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Create User
+      </button>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="userSearch" placeholder="Search by name, username or role…" />
+      <select id="userRoleFilter">
+        <option value="all">All Roles</option>
+        <option value="admin">Admin</option>
+        <option value="user">User</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Full Name</th>
+            <th>Role</th>
+            <th>Joined</th>
+            <th>Last Updated</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+    <div class="empty hidden" id="userEmpty">No users match your search.</div>
+    <div style="margin-top:14px; font-size:0.82rem; color:var(--steel);" id="userCountInfo">0 user(s)</div>
+  </section>
+
+  <!-- ================= INVENTORY ================= -->
+  <section class="panel hidden" id="panel-inventory">
+    <div class="panel-head">
+      <div>
+        <h3>Warehouse Inventory</h3>
+        <div class="sub">Live stock levels across all storage locations (read-only view).</div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input type="text" id="invSearch" placeholder="Search by SKU, product, supplier or bin…" />
+      <select id="invStatusFilter">
+        <option value="all">All Statuses</option>
+        <option value="In Stock">In Stock</option>
+        <option value="Low Stock">Low Stock</option>
+        <option value="Out of Stock">Out of Stock</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Supplier</th>
+            <th>Bin</th>
+            <th>Qty</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="invTableBody"></tbody>
+      </table>
+    </div>
+    <div class="empty hidden" id="invEmpty">No products match your search.</div>
+  </section>
+
+  <!-- ================= STOCK IN — incoming trucks with ETA ================= -->
+  <section class="panel hidden" id="panel-stockin">
+    <div class="panel-head">
+      <div>
+        <h3>Stock coming in</h3>
+        <div class="sub">Inbound deliveries and the truck arrival ETA, straight from the movements collection.</div>
+      </div>
+      <button class="btn-add" id="btnAdminIn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Record incoming
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>SKU / Product</th><th>Qty</th><th>Supplier</th><th>Truck ETA</th><th>Truck / driver</th><th>Status</th><th>Ref</th><th style="text-align:right;">Actions</th></tr>
+        </thead>
+        <tbody id="adminInBody"></tbody>
+      </table>
+    </div>
+    <div class="empty hidden" id="adminInEmpty">No incoming trucks scheduled.</div>
+  </section>
+
+  <!-- ================= STOCK OUT — dispatched to stores ================= -->
+  <section class="panel hidden" id="panel-stockout">
+    <div class="panel-head">
+      <div>
+        <h3>Stock going out</h3>
+        <div class="sub">Stock dispatched from the warehouse to retail stores. Quantities are deducted from inventory.</div>
+      </div>
+      <button class="btn-add" id="btnAdminOut" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Record outgoing
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>SKU / Product</th><th>Qty</th><th>Store</th><th>Ref</th><th>Status</th><th>Recorded</th><th style="text-align:right;">Actions</th></tr>
+        </thead>
+        <tbody id="adminOutBody"></tbody>
+      </table>
+    </div>
+    <div class="empty hidden" id="adminOutEmpty">No outgoing stock recorded.</div>
+  </section>
+
+  <!-- ================= COMPANY HIERARCHY ================= -->
+  <section class="panel hidden" id="panel-company">
+    <div class="panel-head">
+      <div>
+        <h3 id="cpTitle">Company</h3>
+        <div class="sub" id="cpSub">Company → admins → their users → the items each user stores in the warehouse.</div>
+      </div>
+      <button class="mini-btn" id="cpBack" type="button" style="display:none;">← Back</button>
+    </div>
+    <div id="cpBody"></div>
+  </section>
+</main>
+
+<!-- ================= USER MODAL ================= -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Create User</h3>
+    <p class="sub" id="modalSub">Add a new account to the warehouse system.</p>
+    <div class="form-msg err" id="modalMsg"></div>
+
+    <div class="field">
+      <label for="m_display">Full Name</label>
+      <input type="text" id="m_display" placeholder="e.g. Anil Sharma" />
+    </div>
+    <div class="field">
+      <label for="m_username">Username</label>
+      <input type="text" id="m_username" placeholder="e.g. anil@assertpro" />
+    </div>
+    <div class="field">
+      <label for="m_role">Role</label>
+      <select id="m_role">
+        <option value="user">User — warehouse staff</option>
+        <option value="admin">Admin — full access</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="m_password" id="m_password_label">Password</label>
+      <input type="password" id="m_password" placeholder="At least 6 characters" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="modalCancel" type="button">Cancel</button>
+      <button class="btn-save" id="modalSave" type="button">Save User</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MOVEMENT MODAL ================= -->
+<div class="overlay" id="amOverlay">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:520px;">
+    <h3 id="amTitle">Record incoming stock</h3>
+    <p class="sub" id="amSub">An inbound delivery must have a truck ETA.</p>
+    <div class="form-msg err" id="amMsg"></div>
+    <div class="field"><label for="am_sku">Product / SKU</label><select id="am_sku"></select></div>
+    <div class="field"><label for="am_qty">Quantity</label><input type="number" id="am_qty" min="1" value="1" /></div>
+    <div class="field"><label for="am_party" id="am_party_label">Supplier</label><input type="text" id="am_party" placeholder="e.g. your supplier name" /></div>
+    <div class="field" id="am_eta_field"><label for="am_eta">Truck ETA (arrival time)</label><input type="datetime-local" id="am_eta" /></div>
+    <div class="field" id="am_status_field"><label for="am_status">Status</label><select id="am_status"></select></div>
+    <div class="field" id="am_vehicle_field"><label for="am_vehicle">Truck / vehicle no.</label><input type="text" id="am_vehicle" placeholder="e.g. TN-09-AB-4412" /></div>
+    <div class="field" id="am_driver_field"><label for="am_driver">Driver name</label><input type="text" id="am_driver" placeholder="e.g. Suresh K." /></div>
+    <div class="field"><label for="am_ref">Reference (PO / order no.)</label><input type="text" id="am_ref" placeholder="e.g. PO-0091" /></div>
+    <div class="field"><label for="am_notes">Notes</label><input type="text" id="am_notes" placeholder="dock, seal, pallet count…" /></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="amCancel" type="button">Cancel</button>
+      <button class="btn-save" id="amSave" type="button">Save to MongoDB</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="assertpro-db.js"></script>
+<script>
+  /* ============================================================
+     AssertPro admin console — accounts and stock live in MongoDB
+     (see server.js) and are cached in localStorage by assertpro-db.js.
+     ============================================================ */
+  const USERS_KEY   = 'assertpro_users_v1';
+  const SESSION_KEY = 'assertpro_session';
+  const INV_KEY     = 'assertpro_items_v1';
+  const MOV_KEY     = 'assertpro_movements_v1';
+  const isOnline = () => !!(window.AP && AP.online);
+
+  /* the page starts empty — assertpro-db.js fills these caches from MongoDB */
+  function loadUsers(){
+    try{ const raw = localStorage.getItem(USERS_KEY); const a = raw ? JSON.parse(raw) : null; if(Array.isArray(a)) return a; }catch(_){}
+    return [];
+  }
+  function saveUsers(list){ try{ localStorage.setItem(USERS_KEY, JSON.stringify(list)); }catch(_){} }
+  function loadInventory(){
+    try{ const raw = localStorage.getItem(INV_KEY); const a = raw ? JSON.parse(raw) : null; if(Array.isArray(a)) return a; }catch(_){}
+    return [];
+  }
+  function saveInventory(list){ try{ localStorage.setItem(INV_KEY, JSON.stringify(list)); }catch(_){} }
+
+  function readSession(){
+    try{ const raw = localStorage.getItem(SESSION_KEY); return raw ? JSON.parse(raw) : null; }catch(_){}
+    return null;
+  }
+  function clearSession(){ try{ localStorage.removeItem(SESSION_KEY); }catch(_){} }
+
+  /* ============================================================
+     GUARD — only admins may view this page
+     ============================================================ */
+  const session = readSession();
+  if(!session || !session.username){
+    window.location.replace('panda-login.html');
+  } else if(session.role !== 'admin'){
+    try{ sessionStorage.setItem('panda_denied', '1'); }catch(_){}
+    window.location.replace('panda-user.html');
+  }
+
+  /* ============================================================
+     THEME
+     ============================================================ */
+  const THEME_KEY = 'assertpro_theme';
+  function getSavedTheme(){
+    try{ const t = localStorage.getItem(THEME_KEY); if(t === 'dark' || t === 'light') return t; }catch(_){}
+    if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+    return 'light';
+  }
+  function syncThemeIcon(theme){
+    const btn = document.getElementById('themeToggle'); if(!btn) return;
+    const sun = btn.querySelector('.icon-sun'), moon = btn.querySelector('.icon-moon');
+    if(!sun || !moon) return;
+    if(theme === 'dark'){ sun.style.display='none'; moon.style.display='inline-block'; }
+    else { sun.style.display='inline-block'; moon.style.display='none'; }
+  }
+  function applyTheme(theme, persist){
+    const root = document.documentElement;
+    if((root.getAttribute('data-theme') || 'light') !== theme){
+      if(theme === 'dark') root.setAttribute('data-theme','dark'); else root.removeAttribute('data-theme');
+    }
+    if(persist !== false){ try{ localStorage.setItem(THEME_KEY, theme); }catch(_){} }
+    syncThemeIcon(theme);
+  }
+  applyTheme(getSavedTheme(), false);
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
+  });
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => (
+      { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+    ));
+  }
+  function fmtDate(iso){
+    if(!iso) return '—';
+    const d = new Date(iso);
+    if(Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+  }
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  function roleBadge(role){ return '<span class="role-badge ' + (role === 'admin' ? 'admin' : 'user') + '">' + esc(role) + '</span>'; }
+
+  /* ============================================================
+     HEADER / SESSION
+     ============================================================ */
+  if(session && session.username){
+    const name = session.displayName || session.username;
+    document.getElementById('welcomeName').textContent = name;
+    document.getElementById('chipName').textContent = name;
+    document.getElementById('avatarInitial').textContent = (name[0] || 'A').toUpperCase();
+  }
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    clearSession();
+    window.location.href = 'panda-login.html';
+  });
+
+  /* ============================================================
+     TABS
+     ============================================================ */
+  const ADMIN_PANELS = ['users', 'inventory', 'stockin', 'stockout', 'company'];
+  document.querySelectorAll('.tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b === btn));
+      ADMIN_PANELS.forEach(name => {
+        const panel = document.getElementById('panel-' + name);
+        if(panel) panel.classList.toggle('hidden', btn.dataset.tab !== name);
+      });
+      if(btn.dataset.tab === 'stockin' || btn.dataset.tab === 'stockout') renderAdminMovements();
+      if(btn.dataset.tab === 'company') renderHierarchy();
+    });
+  });
+
+  /* ============================================================
+     USERS TABLE
+     ============================================================ */
+  const userTableBody  = document.getElementById('userTableBody');
+  const userEmpty      = document.getElementById('userEmpty');
+  const userCountInfo  = document.getElementById('userCountInfo');
+  const userSearch     = document.getElementById('userSearch');
+  const userRoleFilter = document.getElementById('userRoleFilter');
+
+  function currentUsername(){ return (session && session.username) ? session.username.toLowerCase() : ''; }
+
+  function renderUsers(){
+    const rows = loadUsers();
+    const q = userSearch.value.trim().toLowerCase();
+    const roleFilter = userRoleFilter.value;
+
+    const filtered = rows.filter((u) => {
+      if(roleFilter !== 'all' && u.role !== roleFilter) return false;
+      if(!q) return true;
+      return (u.username || '').toLowerCase().includes(q)
+          || (u.displayName || '').toLowerCase().includes(q)
+          || (u.role || '').toLowerCase().includes(q);
+    });
+
+    filtered.sort((a, b) => {
+      if(a.role !== b.role) return a.role === 'admin' ? -1 : 1;
+      return (a.username || '').localeCompare(b.username || '');
+    });
+
+    if(filtered.length === 0){
+      userTableBody.innerHTML = '';
+      userEmpty.classList.remove('hidden');
+    } else {
+      userEmpty.classList.add('hidden');
+      userTableBody.innerHTML = filtered.map((u, i) => {
+        const isSelf = (u.username || '').toLowerCase() === currentUsername();
+        return '<tr>' +
+          '<td class="mono">' + (i + 1) + '</td>' +
+          '<td class="mono">' + esc(u.username) + (isSelf ? ' <span class="self-tag">(you)</span>' : '') + '</td>' +
+          '<td>' + esc(u.displayName || '—') + '</td>' +
+          '<td>' + roleBadge(u.role) + '</td>' +
+          '<td>' + fmtDate(u.joined) + '</td>' +
+          '<td>' + fmtDate(u.lastUpdated) + '</td>' +
+          '<td><div class="row-actions">' +
+            '<button class="mini-btn" data-act="edit" data-username="' + esc(u.username) + '">Edit</button>' +
+            '<button class="mini-btn danger" data-act="delete" data-username="' + esc(u.username) + '"' +
+              (isSelf ? ' disabled title="You cannot delete your own account"' : '') + '>Delete</button>' +
+          '</div></td>' +
+        '</tr>';
+      }).join('');
+    }
+    userCountInfo.textContent = filtered.length + ' of ' + rows.length + ' user(s) shown';
+    updateStats();
+  }
+
+  userTableBody.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-act]');
+    if(!btn || btn.disabled) return;
+    const username = btn.dataset.username;
+    if(btn.dataset.act === 'edit') openModal('edit', username);
+    else if(btn.dataset.act === 'delete') deleteUser(username);
+  });
+  userSearch.addEventListener('input', renderUsers);
+  userRoleFilter.addEventListener('change', renderUsers);
+
+  async function deleteUser(username){
+    const rows = loadUsers();
+    const target = rows.find(u => (u.username || '').toLowerCase() === username.toLowerCase());
+    if(!target) return;
+    if((target.username || '').toLowerCase() === currentUsername()){
+      toast('You cannot delete your own account.'); return;
+    }
+    if(!window.confirm('Delete user "' + target.username + '"? This removes the account from MongoDB and cannot be undone.')) return;
+
+    if(isOnline()){
+      try{ await AP.deleteAccount(target.username); await AP.refresh(); }
+      catch(err){ toast(err.message); return; }
+    } else {
+      saveUsers(rows.filter(u => (u.username || '').toLowerCase() !== username.toLowerCase()));
+    }
+    renderUsers();
+    renderHierarchy();
+    toast('User "' + target.username + '" deleted' + (isOnline() ? ' from MongoDB.' : '.'));
+  }
+
+  /* ============================================================
+     USER MODAL (create / edit)
+     ============================================================ */
+  const overlay = document.getElementById('modalOverlay');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSub = document.getElementById('modalSub');
+  const modalMsg = document.getElementById('modalMsg');
+  const mDisplay = document.getElementById('m_display');
+  const mUsername = document.getElementById('m_username');
+  const mRole = document.getElementById('m_role');
+  const mPassword = document.getElementById('m_password');
+  const mPasswordLabel = document.getElementById('m_password_label');
+  let modalMode = 'create';
+  let modalTarget = null;   // original username when editing
+
+  function showModalMsg(msg){
+    modalMsg.textContent = msg; modalMsg.classList.add('show');
+  }
+  function clearModalMsg(){ modalMsg.textContent = ''; modalMsg.classList.remove('show'); }
+
+  function openModal(mode, username){
+    modalMode = mode;
+    modalTarget = username || null;
+    clearModalMsg();
+
+    if(mode === 'edit'){
+      const u = loadUsers().find(x => (x.username || '').toLowerCase() === (username || '').toLowerCase());
+      if(!u) return;
+      modalTitle.textContent = 'Edit User';
+      modalSub.textContent = 'Update details and role for "' + u.username + '".';
+      mDisplay.value = u.displayName || '';
+      mUsername.value = u.username || '';
+      mRole.value = u.role || 'user';
+      mPassword.value = '';
+      mPasswordLabel.textContent = 'New Password (leave blank to keep current)';
+      mPassword.placeholder = 'Leave blank to keep current';
+    } else {
+      modalTitle.textContent = 'Create User';
+      modalSub.textContent = 'Add a new account to the warehouse system.';
+      mDisplay.value = '';
+      mUsername.value = '';
+      mRole.value = 'user';
+      mPassword.value = '';
+      mPasswordLabel.textContent = 'Password';
+      mPassword.placeholder = 'At least 6 characters';
+    }
+    overlay.classList.add('show');
+    mDisplay.focus();
+  }
+  function closeModal(){ overlay.classList.remove('show'); }
+
+  document.getElementById('btnAddUser').addEventListener('click', () => openModal('create'));
+  document.getElementById('modalCancel').addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && overlay.classList.contains('show')) closeModal(); });
+
+  document.getElementById('modalSave').addEventListener('click', async () => {
+    const displayName = mDisplay.value.trim();
+    const username = mUsername.value.trim().toLowerCase();
+    const role = mRole.value;
+    const password = mPassword.value;
+
+    if(!displayName){ showModalMsg('Full name is required.'); mDisplay.focus(); return; }
+    if(!username){ showModalMsg('Username is required.'); mUsername.focus(); return; }
+    if(!/^[a-z0-9._@-]+$/.test(username)){ showModalMsg('Username can use letters, numbers, . _ @ and - only.'); mUsername.focus(); return; }
+
+    const rows = loadUsers();
+    const dup = rows.find(u =>
+      (u.username || '').toLowerCase() === username &&
+      (modalMode === 'create' || (modalTarget || '').toLowerCase() !== username)
+    );
+    if(dup){ showModalMsg('That username is already taken.'); mUsername.focus(); return; }
+
+    if(modalMode === 'create'){
+      if(!password || password.length < 6){ showModalMsg('Password must be at least 6 characters.'); mPassword.focus(); return; }
+      if(isOnline()){
+        const btn = document.getElementById('modalSave');
+        btn.disabled = true;
+        try{ await AP.createAccount({ username, password, displayName, role }); await AP.refresh(); }
+        catch(err){ btn.disabled = false; showModalMsg(err.message); return; }
+        btn.disabled = false;
+      } else {
+        const now = new Date().toISOString();
+        rows.push({ username, password, displayName, role, joined: now, lastUpdated: now });
+        saveUsers(rows);
+      }
+      closeModal(); renderUsers(); renderHierarchy();
+      toast('User "' + username + '" created' + (isOnline() ? ' in MongoDB.' : '.'));
+    } else {
+      const idx = rows.findIndex(u => (u.username || '').toLowerCase() === (modalTarget || '').toLowerCase());
+      if(idx === -1 && !isOnline()){ showModalMsg('That user no longer exists.'); return; }
+      if(password && password.length < 6){ showModalMsg('New password must be at least 6 characters.'); mPassword.focus(); return; }
+      if(isOnline()){
+        try{
+          await AP.updateAccount(modalTarget, { username, displayName, role, password: password || undefined });
+          await AP.refresh();
+        }catch(err){ showModalMsg(err.message); return; }
+      } else {
+        rows[idx].displayName = displayName;
+        rows[idx].username = username;
+        rows[idx].role = role;
+        if(password) rows[idx].password = password;
+        rows[idx].lastUpdated = new Date().toISOString();
+        saveUsers(rows);
+      }
+      closeModal(); renderUsers(); renderHierarchy();
+      toast('User "' + username + '" updated' + (isOnline() ? ' in MongoDB.' : '.'));
+    }
+  });
+  [mDisplay, mUsername, mRole, mPassword].forEach(el => {
+    el.addEventListener('input', clearModalMsg);
+    el.addEventListener('keydown', (e) => { if(e.key === 'Enter') document.getElementById('modalSave').click(); });
+  });
+
+  /* ============================================================
+     INVENTORY
+     ============================================================ */
+  const invTableBody  = document.getElementById('invTableBody');
+  const invEmpty      = document.getElementById('invEmpty');
+  const invSearch     = document.getElementById('invSearch');
+  const invStatusFilter = document.getElementById('invStatusFilter');
+
+  function invStatus(item){
+    if(item.qty <= 0) return 'Out of Stock';
+    if(item.qty < item.reorder) return 'Low Stock';
+    return 'In Stock';
+  }
+  function statusClass(s){
+    if(s === 'Out of Stock') return 'st-danger';
+    if(s === 'Low Stock') return 'st-warn';
+    return 'st-ok';
+  }
+
+  function renderInventory(){
+    const rows = loadInventory();
+    const q = invSearch.value.trim().toLowerCase();
+    const filt = invStatusFilter.value;
+
+    const filtered = rows.filter((it) => {
+      const st = invStatus(it);
+      if(filt !== 'all' && st !== filt) return false;
+      if(!q) return true;
+      return (it.sku || '').toLowerCase().includes(q)
+          || (it.product || '').toLowerCase().includes(q)
+          || (it.supplier || '').toLowerCase().includes(q)
+          || (it.bin || '').toLowerCase().includes(q)
+          || (it.category || '').toLowerCase().includes(q);
+    });
+
+    if(filtered.length === 0){
+      invTableBody.innerHTML = '';
+      invEmpty.classList.remove('hidden');
+    } else {
+      invEmpty.classList.add('hidden');
+      invTableBody.innerHTML = filtered.map((it) => {
+        const st = invStatus(it);
+        return '<tr>' +
+          '<td class="mono">' + esc(it.sku) + '</td>' +
+          '<td>' + esc(it.product) +
+            (it.image ? ' <img class="thumb-img" style="display:inline-block;vertical-align:middle;margin-left:6px;" src="' + it.image + '" alt="stock" />' : '') + '</td>' +
+          '<td>' + esc(it.category) + '</td>' +
+          '<td>' + esc(it.supplier) + '</td>' +
+          '<td class="mono">' + esc(it.bin) + '</td>' +
+          '<td><b>' + Number(it.qty).toLocaleString() + '</b></td>' +
+          '<td><span class="status-pill ' + statusClass(st) + '"><span class="dot"></span>' + st + '</span></td>' +
+        '</tr>';
+      }).join('');
+    }
+    updateStats();
+  }
+  invSearch.addEventListener('input', renderInventory);
+  invStatusFilter.addEventListener('change', renderInventory);
+
+  /* ============================================================
+     STATS
+     ============================================================ */
+  function updateStats(){
+    const inv = loadInventory();
+    const users = loadUsers();
+    const totalSkus = inv.length;
+    const units = inv.reduce((s, it) => s + (Number(it.qty) || 0), 0);
+    const low = inv.filter(it => invStatus(it) === 'Low Stock').length;
+    const out = inv.filter(it => invStatus(it) === 'Out of Stock').length;
+
+    document.getElementById('statTotalSkus').textContent = totalSkus;
+    document.getElementById('statUnits').textContent = units.toLocaleString();
+    document.getElementById('statLow').textContent = low;
+    document.getElementById('statOut').textContent = out;
+    document.getElementById('statUsers').textContent = users.length;
+  }
+
+  /* ============================================================
+     STOCK MOVEMENTS — incoming trucks (ETA) and outgoing to stores
+     ============================================================ */
+  function loadMovements(){
+    try{ const r = localStorage.getItem(MOV_KEY); const a = r ? JSON.parse(r) : null; return Array.isArray(a) ? a : []; }
+    catch(_){ return []; }
+  }
+  function saveMovements(list){ try{ localStorage.setItem(MOV_KEY, JSON.stringify(list)); }catch(_){} }
+
+  function mvPill(status){
+    const s = String(status || '—');
+    const cls = /arriv|receiv|deliver|complete|dispatch/i.test(s) ? 'st-ok'
+              : /transit|unload|pack|schedul/i.test(s) ? 'st-warn' : 'st-info';
+    return '<span class="status-pill ' + cls + '"><span class="dot"></span>' + esc(s) + '</span>';
+  }
+  function fmtStampShort(iso){
+    const d = new Date(iso);
+    if(Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleString(undefined, { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+  }
+
+  function renderAdminMovements(){
+    const inBody = document.getElementById('adminInBody');
+    const outBody = document.getElementById('adminOutBody');
+    if(!inBody || !outBody) return;
+    const list = loadMovements();
+    const incoming = list.filter(m => m.type === 'in').sort((a, b) => new Date(a.eta || 0) - new Date(b.eta || 0));
+    const outgoing = list.filter(m => m.type === 'out').sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
+    document.getElementById('adminInEmpty').classList.toggle('hidden', incoming.length > 0);
+    document.getElementById('adminOutEmpty').classList.toggle('hidden', outgoing.length > 0);
+
+    inBody.innerHTML = incoming.map(m => (
+      '<tr>' +
+        '<td><b class="mono">' + esc(m.sku) + '</b><div class="eta-clock">' + esc(m.product || '') + '</div></td>' +
+        '<td><b>' + Number(m.qty).toLocaleString() + '</b></td>' +
+        '<td>' + esc(m.party || '—') + '</td>' +
+        '<td><div class="eta-cell">' +
+          '<span class="status-pill ' + AP.etaBadgeClass(m.eta) + '"><span class="dot"></span>' + esc(AP.etaText(m.eta)) + '</span>' +
+          '<span class="eta-clock">Truck arrives ' + esc(AP.etaClock(m.eta)) + '</span>' +
+        '</div></td>' +
+        '<td><div class="eta-cell"><span>' + esc(m.vehicle || '—') + '</span>' +
+          '<span class="eta-clock">' + esc(m.driver || '') + '</span></div></td>' +
+        '<td>' + mvPill(m.status) + '</td>' +
+        '<td class="mono">' + esc(m.ref || '—') + '</td>' +
+        '<td><div class="row-actions"><button class="mini-btn danger" data-mdel="' + esc(m._id) + '">Delete</button></div></td>' +
+      '</tr>'
+    )).join('');
+
+    outBody.innerHTML = outgoing.map(m => (
+      '<tr>' +
+        '<td><b class="mono">' + esc(m.sku) + '</b><div class="eta-clock">' + esc(m.product || '') + '</div></td>' +
+        '<td><b>' + Number(m.qty).toLocaleString() + '</b></td>' +
+        '<td>' + esc(m.party || '—') + '</td>' +
+        '<td class="mono">' + esc(m.ref || '—') + '</td>' +
+        '<td>' + mvPill(m.status) + '</td>' +
+        '<td><span class="eta-clock">' + esc(fmtStampShort(m.at)) + '</span></td>' +
+        '<td><div class="row-actions"><button class="mini-btn danger" data-mdel="' + esc(m._id) + '">Delete</button></div></td>' +
+      '</tr>'
+    )).join('');
+  }
+
+  ['adminInBody', 'adminOutBody'].forEach(id => {
+    document.getElementById(id).addEventListener('click', async (e) => {
+      const btn = e.target.closest('button[data-mdel]');
+      if(!btn) return;
+      if(!window.confirm('Delete this movement record?')) return;
+      if(isOnline()){
+        try{ await AP.deleteMovement(btn.dataset.mdel); await AP.refresh(); }
+        catch(err){ toast(err.message); return; }
+      } else {
+        saveMovements(loadMovements().filter(m => String(m._id) !== String(btn.dataset.mdel)));
+      }
+      renderAdminMovements();
+      toast('Movement deleted.');
+    });
+  });
+
+  const amOverlay = document.getElementById('amOverlay');
+  const amMsg = document.getElementById('amMsg');
+  let amType = 'in';
+  function showAmMsg(m){ amMsg.textContent = m; amMsg.classList.add('show'); }
+  function localDateTimeValue(dt){
+    const pad = (n) => String(n).padStart(2, '0');
+    return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()) +
+           'T' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+  }
+  function paintAmType(){
+    const isIn = amType === 'in';
+    ['am_eta_field', 'am_status_field', 'am_vehicle_field', 'am_driver_field'].forEach(id => {
+      document.getElementById(id).classList.toggle('hidden', !isIn);
+    });
+    document.getElementById('amTitle').textContent = isIn ? 'Record incoming stock' : 'Record outgoing stock';
+    document.getElementById('amSub').textContent = isIn
+      ? 'Inbound delivery — give the truck arrival ETA so the floor knows when it lands.'
+      : 'Dispatch from the warehouse to a store. The quantity is deducted from inventory.';
+    document.getElementById('am_party_label').textContent = isIn ? 'Supplier' : 'Store / destination';
+    document.getElementById('am_party').placeholder = isIn ? 'e.g. your supplier name' : 'e.g. store you are sending to';
+    document.getElementById('am_status').innerHTML = isIn
+      ? '<option>In Transit</option><option>Scheduled</option><option>At gate</option><option>Unloading</option>'
+      : '<option>Packed</option><option>Dispatched</option><option>Delivered</option>';
+  }
+  function openAdminMovement(type){
+    amType = (type === 'out') ? 'out' : 'in';
+    document.getElementById('am_sku').innerHTML = loadInventory().map(it =>
+      '<option value="' + esc(it.sku) + '" data-product="' + esc(it.product) + '" data-supplier="' + esc(it.supplier || '') + '">' +
+        esc(it.sku) + ' — ' + esc(it.product) + ' (qty ' + Number(it.qty).toLocaleString() + ')</option>').join('');
+    document.getElementById('am_qty').value = 1;
+    document.getElementById('am_party').value = '';
+    document.getElementById('am_ref').value = '';
+    document.getElementById('am_notes').value = '';
+    document.getElementById('am_vehicle').value = '';
+    document.getElementById('am_driver').value = '';
+    document.getElementById('am_eta').value = localDateTimeValue(new Date(Date.now() + 4 * 3600000));
+    amMsg.classList.remove('show'); amMsg.textContent = '';
+    paintAmType();
+    amOverlay.classList.add('show');
+  }
+  document.getElementById('btnAdminIn').addEventListener('click', () => openAdminMovement('in'));
+  document.getElementById('btnAdminOut').addEventListener('click', () => openAdminMovement('out'));
+  document.getElementById('amCancel').addEventListener('click', () => amOverlay.classList.remove('show'));
+  amOverlay.addEventListener('click', (e) => { if(e.target === amOverlay) amOverlay.classList.remove('show'); });
+
+  document.getElementById('amSave').addEventListener('click', async () => {
+    const sel = document.getElementById('am_sku');
+    const sku = sel.value;
+    if(!sku){ showAmMsg('Add a stock item first — there is nothing to move.'); return; }
+    const qty = Number(document.getElementById('am_qty').value);
+    if(!qty || qty <= 0){ showAmMsg('Quantity must be greater than zero.'); return; }
+    const opt = sel.options[sel.selectedIndex];
+    const etaVal = document.getElementById('am_eta').value;
+    if(amType === 'in' && !etaVal){ showAmMsg('Please give the truck arrival ETA.'); return; }
+
+    const payload = {
+      type: amType, sku, qty,
+      product: opt ? opt.dataset.product : '',
+      party: document.getElementById('am_party').value.trim() ||
+             (amType === 'in' ? (opt ? opt.dataset.supplier : '') : 'Store'),
+      ref: document.getElementById('am_ref').value.trim(),
+      notes: document.getElementById('am_notes').value.trim(),
+      status: document.getElementById('am_status').value,
+      eta: amType === 'in' ? new Date(etaVal).toISOString() : null,
+      vehicle: amType === 'in' ? document.getElementById('am_vehicle').value.trim() : '',
+      driver: amType === 'in' ? document.getElementById('am_driver').value.trim() : '',
+      by: (session && (session.displayName || session.username)) || 'Admin Console'
+    };
+
+    if(isOnline()){
+      const btn = document.getElementById('amSave');
+      btn.disabled = true;
+      try{ await AP.addMovement(payload); await AP.refresh(); }
+      catch(err){ btn.disabled = false; showAmMsg(err.message); return; }
+      btn.disabled = false;
+    } else {
+      const list = loadMovements();
+      list.unshift(Object.assign({ _id:'local-' + Date.now(), at:new Date().toISOString() }, payload));
+      saveMovements(list);
+      if(amType === 'out'){
+        const inv = loadInventory();
+        const i = inv.findIndex(r => r.sku === sku);
+        if(i > -1){ inv[i].qty = Math.max(0, Number(inv[i].qty) - qty); saveInventory(inv); }
+      }
+    }
+    amOverlay.classList.remove('show');
+    renderAdminMovements();
+    renderInventory();
+    updateStats();
+    toast(amType === 'in'
+      ? 'Incoming recorded — truck ' + AP.etaText(payload.eta)
+      : 'Dispatched ' + qty + ' to ' + payload.party);
+  });
+
+  /* ============================================================
+     COMPANY HIERARCHY — company → admins → users → items
+     ============================================================ */
+  let cpStep = 0, cpAdmin = null, cpUser = null;
+
+  function offlineTree(){
+    const all = loadUsers();
+    const admins = all.filter(u => u.role === 'admin');
+    const staff = all.filter(u => u.role !== 'admin');
+    const items = loadInventory();
+    const firstAdmin = admins[0] ? admins[0].username : '';
+    return {
+      company: (window.AP && AP.companyName()) || 'AssertPro',
+      admins: admins.map(a => {
+        const mine = staff.filter(u => (u.adminUsername || firstAdmin) === a.username);
+        const ownItems = items.filter(i => (i.ownerUsername || '') === a.username);
+        return {
+          username: a.username, displayName: a.displayName, password: a.password, userCount: mine.length,
+          itemCount: ownItems.length,
+          items: ownItems.map(i => ({ sku:i.sku, product:i.product, qty:i.qty, reorder:i.reorder, bin:i.bin, category:i.category, image:!!i.image })),
+          users: mine.map(u => ({
+            username: u.username, displayName: u.displayName, password: u.password,
+            itemCount: items.filter(i => (i.ownerUsername || '') === u.username).length,
+            items: items.filter(i => (i.ownerUsername || '') === u.username)
+              .map(i => ({ sku:i.sku, product:i.product, qty:i.qty, reorder:i.reorder, bin:i.bin, category:i.category, image:!!i.image }))
+          }))
+        };
+      })
+    };
+  }
+  function companyTree(){
+    if(window.AP && AP.tree) return AP.tree;
+    return offlineTree();
+  }
+
+  function renderHierarchy(){
+    const body = document.getElementById('cpBody');
+    if(!body) return;
+    const tree = companyTree();
+    document.getElementById('cpBack').style.display = cpStep > 0 ? '' : 'none';
+
+    if(cpStep === 0){
+      const totalUsers = tree.admins.reduce((s, a) => s + a.userCount, 0);
+      const totalItems = tree.admins.reduce((s, a) => s + a.users.reduce((t, u) => t + u.itemCount, 0) + (a.itemCount || 0), 0);
+      document.getElementById('cpTitle').textContent = tree.company;
+      document.getElementById('cpSub').textContent = 'Click the company to drill into its admins, then users, then the items they store (MongoDB database: assertpro).';
+      body.innerHTML =
+        '<div class="company-card" data-cp="company">' +
+          '<span class="cc-icon">' + esc((tree.company || 'A')[0]) + '</span>' +
+          '<span><span class="cc-name">' + esc(tree.company) + '</span>' +
+            '<span class="cc-meta">companies → admins → users → items</span></span>' +
+          '<span class="cc-go">' + tree.admins.length + ' admin(s) · ' + totalUsers + ' user(s) · ' + totalItems + ' item(s) →</span>' +
+        '</div>';
+    } else if(cpStep === 1){
+      document.getElementById('cpTitle').textContent = 'Admins in ' + tree.company;
+      document.getElementById('cpSub').textContent = 'Each admin below owns a set of warehouse users.';
+      body.innerHTML = tree.admins.length
+        ? tree.admins.map(a =>
+            '<div class="company-card" data-cp="admin" data-admin="' + esc(a.username) + '">' +
+              '<span class="cc-icon">🛡️</span>' +
+              '<span><span class="cc-name">' + esc(a.displayName || a.username) + '</span>' +
+                '<span class="cc-meta">' + esc(a.username) + ' · password: ' + esc(a.password || '—') + '</span></span>' +
+              '<span class="cc-go">' + a.userCount + ' user(s)' + ((a.itemCount || 0) ? ' · ' + a.itemCount + ' own item(s)' : '') + ' →</span>' +
+            '</div>').join('')
+        : '<div class="empty">No admins in this company yet.</div>';
+    } else if(cpStep === 2){
+      const admin = tree.admins.find(a => a.username === cpAdmin);
+      document.getElementById('cpTitle').textContent = 'Users under ' + ((admin && (admin.displayName || admin.username)) || cpAdmin);
+      document.getElementById('cpSub').textContent = 'Click a user to see the items they store in the warehouse.';
+      const own = (admin && admin.itemCount)
+        ? '<div class="company-card" data-cp="user" data-user="' + esc(admin.username) + '">' +
+            '<span class="cc-icon">🛡️</span>' +
+            '<span><span class="cc-name">' + esc(admin.displayName || admin.username) + ' (added by the admin)</span>' +
+              '<span class="cc-meta">' + esc(admin.username) + '</span></span>' +
+            '<span class="cc-go">' + admin.itemCount + ' item(s) stored →</span>' +
+          '</div>'
+        : '';
+      const kids = (admin && admin.users.length)
+        ? admin.users.map(u =>
+            '<div class="company-card" data-cp="user" data-user="' + esc(u.username) + '">' +
+              '<span class="cc-icon">👤</span>' +
+              '<span><span class="cc-name">' + esc(u.displayName || u.username) + '</span>' +
+                '<span class="cc-meta">' + esc(u.username) + '</span></span>' +
+              '<span class="cc-go">' + u.itemCount + ' item(s) stored →</span>' +
+            '</div>').join('')
+        : '';
+      body.innerHTML = (own + kids) || '<div class="empty">This admin has no users yet.</div>';
+    } else {
+      const admin = tree.admins.find(a => a.username === cpAdmin);
+      /* an admin-owned list is opened with the admin's own username */
+      let user = admin && admin.users.find(u => u.username === cpUser);
+      if(!user && admin && cpUser === admin.username){
+        user = { username:admin.username, displayName:(admin.displayName || admin.username), items: admin.items || [] };
+      }
+      document.getElementById('cpTitle').textContent = 'Items stored by ' + ((user && (user.displayName || user.username)) || cpUser);
+      document.getElementById('cpSub').textContent = 'Stock records this account keeps in the warehouse (MongoDB items collection).';
+      body.innerHTML = (user && user.items.length)
+        ? '<div class="table-wrap"><table><thead><tr><th>SKU</th><th>Product</th><th>Category</th><th>Bin</th><th>Qty</th><th>Reorder</th><th>Photo</th></tr></thead><tbody>' +
+          user.items.map(i =>
+            '<tr><td class="mono">' + esc(i.sku) + '</td><td>' + esc(i.product) + '</td><td>' + esc(i.category || '—') + '</td>' +
+            '<td class="mono">' + esc(i.bin || '—') + '</td><td><b>' + Number(i.qty).toLocaleString() + '</b></td>' +
+            '<td>' + Number(i.reorder).toLocaleString() + '</td>' +
+            '<td>' + (i.image ? '📷 yes' : '—') + '</td></tr>').join('') +
+          '</tbody></table></div>'
+        : '<div class="empty">No items stored by this user yet.</div>';
+    }
+
+    body.querySelectorAll('[data-cp]').forEach(el => {
+      el.addEventListener('click', () => {
+        if(el.dataset.cp === 'company'){ cpStep = 1; }
+        else if(el.dataset.cp === 'admin'){ cpAdmin = el.dataset.admin; cpUser = null; cpStep = 2; }
+        else if(el.dataset.cp === 'user'){ cpUser = el.dataset.user; cpStep = 3; }
+        renderHierarchy();
+      });
+    });
+  }
+  document.getElementById('cpBack').addEventListener('click', () => {
+    if(cpStep === 3){ cpUser = null; cpStep = 2; }
+    else if(cpStep === 2){ cpAdmin = null; cpStep = 1; }
+    else if(cpStep === 1){ cpStep = 0; }
+    renderHierarchy();
+  });
+
+  /* -------- INIT -------- */
+  renderUsers();
+  renderInventory();
+  renderAdminMovements();
+  renderHierarchy();
+
+  if(window.AP){
+    AP.ready.then((online) => {
+      /* the account may have been deleted (or the database reset) since the
+         session was saved — send the visitor back to the login page */
+      const me = String((session && session.username) || '').toLowerCase();
+      const exists = loadUsers().some(u => String(u.username || '').toLowerCase() === me);
+      if(online && !exists){
+        clearSession();
+        window.location.replace('panda-login.html');
+        return;
+      }
+      renderUsers();
+      renderInventory();
+      renderAdminMovements();
+      renderHierarchy();
+      toast(online
+        ? 'MongoDB connected — ' + loadUsers().length + ' accounts, ' + loadInventory().length + ' items, ' + loadMovements().length + ' movements.'
+        : 'Server offline — using browser data. Run "npm start" for MongoDB.');
+    });
+  }
+  setInterval(() => {
+    const p = document.getElementById('panel-stockin');
+    if(p && !p.classList.contains('hidden')) renderAdminMovements();
+  }, 60000);
+</script>
+</body>
+</html>
